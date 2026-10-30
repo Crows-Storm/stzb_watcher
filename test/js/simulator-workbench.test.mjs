@@ -17,6 +17,8 @@ import {
   simulationCompletionEvent,
   simulatorReducer,
   shouldCommitSimulationRequest,
+  resultSummaryMarkup,
+  lineupFromOwnTeam,
 } from "../../static/simulator-workbench.js";
 
 const deferred = () => {
@@ -746,4 +748,52 @@ test("simulator initializer cannot commit or clear busy state from a generation 
   assert.equal(lifecycle.at(-1).kind, "success");
   assert.equal(lifecycle.at(-1).busy, false);
   assert.deepEqual(releases, [1, 3]);
+});
+
+test("batch draw rates render as percents instead of NaN", () => {
+  const html = resultSummaryMarkup(
+    {
+      repeat: 100,
+      blue_rate: 0,
+      red_rate: 0,
+      draw_rate: 100,
+      blue_wins: 0,
+      red_wins: 0,
+      draws: 100,
+    },
+    { events: new Array(810), outcome: "draw" },
+    null,
+  );
+
+  assert.equal(html.includes("NaN"), false);
+  assert.match(html, /攻方 0%/);
+  assert.match(html, /攻方胜率[\s\S]*?<strong>0%<\/strong>/);
+  assert.match(html, /守方胜率[\s\S]*?<strong>0%<\/strong>/);
+  assert.match(html, /平局率[\s\S]*?<strong>100%<\/strong>/);
+  assert.match(html, /平局[\s\S]*?<strong>100<\/strong>/);
+});
+
+test("own team applies heroes, advance, and skills to one side", () => {
+  const lineup = lineupFromOwnTeam({
+    slots: [
+      { slot: "前排", hero: { heroId: 100003, level: 26, advance: 5, hpMax: 6100, skills: [{ id: 200003, level: 6 }, { id: 200863, level: 1 }] } },
+      { slot: "中排", hero: { heroId: 100687, level: 26, advance: 0, skills: [{ id: 200960 }] } },
+      { slot: "后排", hero: { heroId: 100030, level: 26, skills: [] } },
+    ],
+  }, 80);
+  const state = simulatorReducer(createSimulatorState(), {
+    type: "loadLineup",
+    side: "defender",
+    lineup,
+  });
+
+  assert.equal(state.defender.morale, 80);
+  assert.equal(state.defender.heroes[0].id, 100003);
+  assert.equal(state.defender.heroes[0].level, 26);
+  assert.equal(state.defender.heroes[0].up, 5);
+  assert.equal(state.defender.heroes[0].troops, 6100);
+  assert.deepEqual(state.defender.heroes[0].equip_skills, [200003, 200863]);
+  assert.deepEqual(state.defender.heroes[0].skillLevels, [6, 1]);
+  assert.equal(state.defender.heroes[1].equip_skills[0], 200960);
+  assert.equal(state.attacker.heroes[0].id, 100027);
 });

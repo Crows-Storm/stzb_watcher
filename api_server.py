@@ -16,6 +16,7 @@ from battle_engine_adapter import BattleEngineAdapter
 from intelligence.config_api import register_intelligence_config_api
 from intelligence.config_repository import IntelligenceConfigRepository
 from intelligence.live_army_api import register_live_army_api
+from own_teams import register_own_teams_api
 from intelligence.lineup_api import register_intelligence_lineup_api
 from intelligence.research_api import register_intelligence_research_api
 from intelligence.world_api import register_world_intelligence_api
@@ -558,6 +559,12 @@ def _world_scene_connection():
 register_world_scene_api(app, _world_scene_connection)
 register_world_intelligence_api(app, _world_scene_connection)
 register_live_army_api(app, _world_scene_connection)
+register_own_teams_api(
+    app,
+    get_db,
+    lambda: (profile_manager.load_current_profile() or {}).get("cap_dir") or "",
+    lambda: (profile_manager.load_current_profile() or {}).get("role_name") or "",
+)
 _intelligence_snapshot_root = os.path.join(
     BASE_DIR, 'data', 'intelligence', 'client-9.2.2'
 )
@@ -2231,7 +2238,7 @@ def api_battles_all():
     result = request.args.get('result', '')
     ftype  = request.args.get('fight_type', '')
     period = request.args.get('period', '')
-    wid    = request.args.get('wid', '')
+    wid_text = request.args.get('wid', '')
     start_time = request.args.get('start_time', '')
     end_time = request.args.get('end_time', '')
     city_siege = request.args.get('city_siege', '') == '1'
@@ -2241,7 +2248,6 @@ def api_battles_all():
     else:
         members = request.args.get('members', '')
     offset = (page - 1) * size
-    conn = get_db()
 
     where = ['result <= 6', 'result != 6']; params = []
     if player:
@@ -2254,9 +2260,12 @@ def api_battles_all():
         where.append('result=?'); params.append(int(result))
     if ftype:
         where.append('fight_type=?'); params.append(int(ftype))
-    if wid:
-        try: where.append('wid=?'); params.append(int(wid))
-        except: pass
+    wid_value = 0
+    if wid_text:
+        try:
+            wid_value = int(wid_text)
+        except ValueError:
+            wid_value = 0
     if start_time:
         try: where.append('time>=?'); params.append(int(start_time))
         except: pass
@@ -2276,9 +2285,18 @@ def api_battles_all():
         where.append(f'time >= {int(__import__("time").time())-86400}')
     elif period == 'week':
         where.append(f'time >= {int(__import__("time").time())-7*86400}')
-    w = ' AND '.join(where)
     conn = get_db()
+    present = {row[1] for row in conn.execute('PRAGMA table_info(battles_v2)').fetchall()}
+    if wid_value > 0 and 'wid' in present:
+        where = [item for item in where if item not in ('result <= 6', 'result != 6')]
+        where.append('wid=?')
+        params.append(wid_value)
+    if not where:
+        where = ['1=1']
+    w = ' AND '.join(where)
     bv_cols = get_bv2_cols(conn)
+    wid_select = 'wid' if 'wid' in present else '0 AS wid'
+    wid_name_select = 'wid_name' if 'wid_name' in present else "'' AS wid_name"
     defense_phase_col = (
         "COALESCE(defense_phase, 'other') AS defense_phase"
         if 'defense_phase' in bv_cols
@@ -2290,7 +2308,7 @@ def api_battles_all():
                    atk_name, atk_union, def_name, def_union,
                    atk_hero1_id, atk_hero2_id, atk_hero3_id,
                    def_hero1_id, def_hero2_id, def_hero3_id,
-                   garrison, {defense_phase_col}
+                   garrison, {wid_select}, {wid_name_select}, {defense_phase_col}
             FROM battles_v2
             WHERE {w}
             ORDER BY time DESC
@@ -3933,6 +3951,11 @@ def add_no_cache_headers(resp):
 
 
 # ===== 静态文件 =====
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('brand/favicon.ico')
+
+
 @app.route('/')
 def index():
     dashboard_path = os.path.join(RESOURCE_DIR, 'static', 'dashboard.html')

@@ -4801,6 +4801,7 @@ try {
   );
 
   const expectedVisibleNavigation = [
+    "我的队伍",
     "玩家队伍",
     "自定义积分",
     "打城考勤",

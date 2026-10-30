@@ -22,6 +22,38 @@ const STATE_COLORS = Object.freeze({
   unknown: "#c98555",
 });
 
+export const RELATION_COLORS = Object.freeze({
+  self: "#34d399",
+  ally: "#54a6ff",
+  enemy: "#f05267",
+  unknown: "#94a3b8",
+});
+
+export function relationFor(userId, unionId, viewer) {
+  const user = Number(userId) || 0;
+  const union = Number(unionId) || 0;
+  const selfUser = Number(viewer?.userId) || 0;
+  const selfUnion = Number(viewer?.unionId) || 0;
+  if (selfUser && user && user === selfUser) return "self";
+  if (selfUnion && union && union === selfUnion) return "ally";
+  if (
+    selfUser
+    && user
+    && user !== selfUser
+    && selfUnion
+    && union
+    && union !== selfUnion
+  ) {
+    return "enemy";
+  }
+  return "unknown";
+}
+
+export function wheelZoomFactor(deltaY) {
+  const clamped = Math.max(-48, Math.min(48, Number(deltaY) || 0));
+  return Math.min(1.08, Math.max(0.93, Math.exp(clamped * 0.0011)));
+}
+
 export function widToPoint(wid) {
   const value = Number(wid) || 0;
   if (value <= 0) return { row: 0, col: 0 };
@@ -63,6 +95,7 @@ export function buildArmyDrawPlan(
   selectedArmyId,
   bounds,
   viewport = { width: 800, height: 560 },
+  options = {},
 ) {
   const normalizedBounds = normalizeBounds(bounds);
   const mapRect = {
@@ -73,6 +106,7 @@ export function buildArmyDrawPlan(
   };
   const markers = [];
   const routes = [];
+  const viewer = options?.viewer || null;
   for (const army of armies || []) {
     const location = army?.location || {};
     const current = projectWid(
@@ -88,17 +122,25 @@ export function buildArmyDrawPlan(
     const shape = stale
       ? "diamond"
       : STATE_SHAPES[army.stateKey] || "diamond";
-    const color = offline
+    const relation = relationFor(
+      army.userId,
+      army.ownerUnionId,
+      viewer,
+    );
+    const color = RELATION_COLORS[relation] || RELATION_COLORS.unknown;
+    const evidenceColor = offline
       ? "#7183a7"
       : stale
         ? "#f5b84b"
-      : STATE_COLORS[army.stateKey] || STATE_COLORS.unknown;
+        : STATE_COLORS[army.stateKey] || STATE_COLORS.unknown;
     markers.push({
       armyId: Number(army.armyId) || 0,
       x: current.x,
       y: current.y,
       shape,
       color,
+      relation,
+      evidenceColor,
       stateKey: army.stateKey || "unknown",
       stateLabel: army.stateLabel || "状态未知",
       selected: Number(army.armyId) === Number(selectedArmyId),
@@ -132,6 +174,7 @@ export function buildArmyDrawPlan(
       armyId: Number(army.armyId) || 0,
       kind: routeKind,
       color,
+      relation,
       selected: Number(army.armyId) === Number(selectedArmyId),
       points: routePoints,
     });
@@ -167,8 +210,18 @@ export function drawLiveArmyMap(
   context.fillRect(0, 0, width, height);
   drawGrid(context, plan.mapRect);
 
-  for (const route of plan.routes || []) drawRoute(context, route);
-  for (const marker of plan.markers || []) {
+  const paintOrder = (item) => {
+    const rank = { unknown: 0, enemy: 1, ally: 2, self: 3 }[item.relation] || 0;
+    return rank + (item.selected ? 10 : 0);
+  };
+  const routes = [...(plan.routes || [])].sort(
+    (left, right) => paintOrder(left) - paintOrder(right),
+  );
+  const markers = [...(plan.markers || [])].sort(
+    (left, right) => paintOrder(left) - paintOrder(right),
+  );
+  for (const route of routes) drawRoute(context, route);
+  for (const marker of markers) {
     drawMarker(context, marker, { reducedMotion });
   }
   return plan;
@@ -208,7 +261,12 @@ export function zoomBounds(bounds, row, col, direction) {
   const current = normalizeBounds(bounds);
   const currentRows = current.rowDown - current.rowUp + 1;
   const currentCols = current.colRight - current.colLeft + 1;
-  const factor = Number(direction) < 0 ? 0.72 : 1.38;
+  const numeric = Number(direction);
+  const factor = numeric === -1
+    ? 0.72
+    : numeric === 1
+      ? 1.38
+      : Math.min(1.12, Math.max(0.88, Number.isFinite(numeric) ? numeric : 1));
   const rows = Math.max(8, Math.min(1200, Math.round(currentRows * factor)));
   const cols = Math.max(8, Math.min(1200, Math.round(currentCols * factor)));
   const rowRatio = currentRows
@@ -301,8 +359,10 @@ function drawMarker(context, marker) {
   context.save();
   context.translate(marker.x, marker.y);
   context.globalAlpha = marker.offline ? 0.5 : 1;
-  context.fillStyle = "#0c1430";
-  context.strokeStyle = marker.color;
+  context.fillStyle = marker.color;
+  context.strokeStyle = marker.stale || marker.offline
+    ? marker.evidenceColor || marker.color
+    : "#f4f7ff";
   context.lineWidth = marker.selected ? 2.5 : 1.5;
   if (marker.offline) context.setLineDash([3, 3]);
   drawShape(context, marker.shape);

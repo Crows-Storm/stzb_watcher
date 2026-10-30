@@ -7544,8 +7544,8 @@
     },
     "100007": {
       "iconId": 100007,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100007.webp"
     },
     "100008": {
       "iconId": 100008,
@@ -7554,8 +7554,8 @@
     },
     "100009": {
       "iconId": 100009,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100009.webp"
     },
     "100013": {
       "iconId": 100013,
@@ -7689,8 +7689,8 @@
     },
     "100041": {
       "iconId": 100041,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100041.webp"
     },
     "100042": {
       "iconId": 100042,
@@ -7769,13 +7769,13 @@
     },
     "100059": {
       "iconId": 100059,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100059.webp"
     },
     "100060": {
       "iconId": 100060,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100060.webp"
     },
     "100062": {
       "iconId": 100062,
@@ -7854,8 +7854,8 @@
     },
     "100081": {
       "iconId": 100081,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100081.webp"
     },
     "100084": {
       "iconId": 100084,
@@ -7994,8 +7994,8 @@
     },
     "100134": {
       "iconId": 100134,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100134.webp"
     },
     "100136": {
       "iconId": 100136,
@@ -8054,13 +8054,13 @@
     },
     "100155": {
       "iconId": 100155,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100155.webp"
     },
     "100156": {
       "iconId": 100156,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100156.webp"
     },
     "100157": {
       "iconId": 100157,
@@ -8099,8 +8099,8 @@
     },
     "100179": {
       "iconId": 100179,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100179.webp"
     },
     "100180": {
       "iconId": 100180,
@@ -8109,8 +8109,8 @@
     },
     "100189": {
       "iconId": 100189,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100189.webp"
     },
     "100190": {
       "iconId": 100190,
@@ -8174,13 +8174,13 @@
     },
     "100239": {
       "iconId": 100239,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100239.webp"
     },
     "100241": {
       "iconId": 100241,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100241.webp"
     },
     "100243": {
       "iconId": 100243,
@@ -8199,13 +8199,13 @@
     },
     "100264": {
       "iconId": 100264,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100264.webp"
     },
     "100265": {
       "iconId": 100265,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100265.webp"
     },
     "100268": {
       "iconId": 100268,
@@ -8289,8 +8289,8 @@
     },
     "100344": {
       "iconId": 100344,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100344.webp"
     },
     "100345": {
       "iconId": 100345,
@@ -8349,18 +8349,18 @@
     },
     "100371": {
       "iconId": 100371,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100371.webp"
     },
     "100372": {
       "iconId": 100372,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100372.webp"
     },
     "100374": {
       "iconId": 100374,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100374.webp"
     },
     "100376": {
       "iconId": 100376,
@@ -8394,18 +8394,18 @@
     },
     "100403": {
       "iconId": 100403,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100403.webp"
     },
     "100405": {
       "iconId": 100405,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100405.webp"
     },
     "100406": {
       "iconId": 100406,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100406.webp"
     },
     "100414": {
       "iconId": 100414,
@@ -8424,8 +8424,8 @@
     },
     "100424": {
       "iconId": 100424,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100424.webp"
     },
     "100426": {
       "iconId": 100426,
@@ -8444,18 +8444,18 @@
     },
     "100439": {
       "iconId": 100439,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100439.webp"
     },
     "100442": {
       "iconId": 100442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100442.webp"
     },
     "100443": {
       "iconId": 100443,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100443.webp"
     },
     "100449": {
       "iconId": 100449,
@@ -8474,8 +8474,8 @@
     },
     "100452": {
       "iconId": 100452,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100452.webp"
     },
     "100471": {
       "iconId": 100471,
@@ -8499,8 +8499,8 @@
     },
     "100476": {
       "iconId": 100476,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100476.webp"
     },
     "100477": {
       "iconId": 100477,
@@ -8554,8 +8554,8 @@
     },
     "100489": {
       "iconId": 100489,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100489.webp"
     },
     "100490": {
       "iconId": 100490,
@@ -8579,8 +8579,8 @@
     },
     "100494": {
       "iconId": 100494,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100494.webp"
     },
     "100495": {
       "iconId": 100495,
@@ -8604,8 +8604,8 @@
     },
     "100499": {
       "iconId": 100097,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100097.webp"
     },
     "100500": {
       "iconId": 100186,
@@ -8629,8 +8629,8 @@
     },
     "100504": {
       "iconId": 100246,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100246.webp"
     },
     "100505": {
       "iconId": 100161,
@@ -8664,13 +8664,13 @@
     },
     "100511": {
       "iconId": 100170,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100170.webp"
     },
     "100512": {
       "iconId": 100171,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100171.webp"
     },
     "100513": {
       "iconId": 100172,
@@ -8704,8 +8704,8 @@
     },
     "100519": {
       "iconId": 100519,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100519.webp"
     },
     "100520": {
       "iconId": 100520,
@@ -8749,8 +8749,8 @@
     },
     "100528": {
       "iconId": 100528,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100528.webp"
     },
     "100529": {
       "iconId": 100529,
@@ -8774,83 +8774,83 @@
     },
     "100534": {
       "iconId": 100534,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100534.webp"
     },
     "100535": {
       "iconId": 100535,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100535.webp"
     },
     "100536": {
       "iconId": 100536,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100536.webp"
     },
     "100538": {
       "iconId": 100538,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100538.webp"
     },
     "100539": {
       "iconId": 100539,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100539.webp"
     },
     "100540": {
       "iconId": 100540,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100540.webp"
     },
     "100541": {
       "iconId": 100541,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100541.webp"
     },
     "100542": {
       "iconId": 100542,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100542.webp"
     },
     "100543": {
       "iconId": 100543,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100543.webp"
     },
     "100544": {
       "iconId": 100544,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100544.webp"
     },
     "100545": {
       "iconId": 100545,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100545.webp"
     },
     "100546": {
       "iconId": 100546,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100546.webp"
     },
     "100547": {
       "iconId": 100547,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100547.webp"
     },
     "100548": {
       "iconId": 100548,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100548.webp"
     },
     "100553": {
       "iconId": 100553,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100553.webp"
     },
     "100557": {
       "iconId": 100557,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100557.webp"
     },
     "100562": {
       "iconId": 100562,
@@ -8869,8 +8869,8 @@
     },
     "100578": {
       "iconId": 100578,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100578.webp"
     },
     "100582": {
       "iconId": 100582,
@@ -8894,8 +8894,8 @@
     },
     "100592": {
       "iconId": 100592,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100592.webp"
     },
     "100593": {
       "iconId": 100593,
@@ -8904,13 +8904,13 @@
     },
     "100594": {
       "iconId": 100594,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100594.webp"
     },
     "100595": {
       "iconId": 100595,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100595.webp"
     },
     "100596": {
       "iconId": 100596,
@@ -8919,8 +8919,8 @@
     },
     "100597": {
       "iconId": 100597,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100597.webp"
     },
     "100598": {
       "iconId": 100598,
@@ -8939,8 +8939,8 @@
     },
     "100601": {
       "iconId": 100601,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100601.webp"
     },
     "100603": {
       "iconId": 100603,
@@ -8999,8 +8999,8 @@
     },
     "100635": {
       "iconId": 100635,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100635.webp"
     },
     "100636": {
       "iconId": 100636,
@@ -9044,8 +9044,8 @@
     },
     "100644": {
       "iconId": 100644,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100644.webp"
     },
     "100645": {
       "iconId": 100645,
@@ -9064,13 +9064,13 @@
     },
     "100649": {
       "iconId": 100649,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100649.webp"
     },
     "100652": {
       "iconId": 100652,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100652.webp"
     },
     "100653": {
       "iconId": 100653,
@@ -9094,8 +9094,8 @@
     },
     "100670": {
       "iconId": 100670,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100670.webp"
     },
     "100671": {
       "iconId": 100671,
@@ -9119,8 +9119,8 @@
     },
     "100677": {
       "iconId": 100677,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100677.webp"
     },
     "100683": {
       "iconId": 100683,
@@ -9134,8 +9134,8 @@
     },
     "100685": {
       "iconId": 100685,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100685.webp"
     },
     "100687": {
       "iconId": 100687,
@@ -9144,8 +9144,8 @@
     },
     "100689": {
       "iconId": 100689,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100689.webp"
     },
     "100690": {
       "iconId": 100690,
@@ -9204,8 +9204,8 @@
     },
     "100701": {
       "iconId": 100701,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100701.webp"
     },
     "100702": {
       "iconId": 100702,
@@ -9234,8 +9234,8 @@
     },
     "100707": {
       "iconId": 100707,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100707.webp"
     },
     "100708": {
       "iconId": 100708,
@@ -9279,8 +9279,8 @@
     },
     "100716": {
       "iconId": 100716,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100716.webp"
     },
     "100717": {
       "iconId": 100717,
@@ -9354,8 +9354,8 @@
     },
     "100742": {
       "iconId": 100742,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100742.webp"
     },
     "100744": {
       "iconId": 100280,
@@ -9414,8 +9414,8 @@
     },
     "100755": {
       "iconId": 100181,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100181.webp"
     },
     "100756": {
       "iconId": 100182,
@@ -9464,13 +9464,13 @@
     },
     "100765": {
       "iconId": 100765,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100765.webp"
     },
     "100766": {
       "iconId": 100766,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100766.webp"
     },
     "100767": {
       "iconId": 100767,
@@ -9639,8 +9639,8 @@
     },
     "100812": {
       "iconId": 100812,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100812.webp"
     },
     "100814": {
       "iconId": 100814,
@@ -9654,73 +9654,73 @@
     },
     "101138": {
       "iconId": 101138,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101138.webp"
     },
     "101141": {
       "iconId": 101141,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101141.webp"
     },
     "101156": {
       "iconId": 101156,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101156.webp"
     },
     "101174": {
       "iconId": 101174,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101174.webp"
     },
     "101216": {
       "iconId": 101216,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101216.webp"
     },
     "101220": {
       "iconId": 101220,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101220.webp"
     },
     "101221": {
       "iconId": 101221,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101221.webp"
     },
     "101227": {
       "iconId": 101227,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101227.webp"
     },
     "101232": {
       "iconId": 101232,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101232.webp"
     },
     "101233": {
       "iconId": 101233,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101233.webp"
     },
     "101234": {
       "iconId": 101234,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101234.webp"
     },
     "101235": {
       "iconId": 101235,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101235.webp"
     },
     "101236": {
       "iconId": 101236,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101236.webp"
     },
     "101239": {
       "iconId": 101239,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101239.webp"
     },
     "101260": {
       "iconId": 101260,
@@ -9739,8 +9739,8 @@
     },
     "101302": {
       "iconId": 100476,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100476.webp"
     },
     "101303": {
       "iconId": 100769,
@@ -9749,8 +9749,8 @@
     },
     "101304": {
       "iconId": 100685,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100685.webp"
     },
     "101305": {
       "iconId": 100310,
@@ -9764,13 +9764,13 @@
     },
     "101307": {
       "iconId": 100442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100442.webp"
     },
     "101308": {
       "iconId": 100494,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100494.webp"
     },
     "101309": {
       "iconId": 100582,
@@ -9789,8 +9789,8 @@
     },
     "101312": {
       "iconId": 100534,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100534.webp"
     },
     "101313": {
       "iconId": 100035,
@@ -9844,18 +9844,18 @@
     },
     "101323": {
       "iconId": 100677,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100677.webp"
     },
     "101324": {
       "iconId": 100009,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100009.webp"
     },
     "101325": {
       "iconId": 100557,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100557.webp"
     },
     "101326": {
       "iconId": 100562,
@@ -9869,8 +9869,8 @@
     },
     "101328": {
       "iconId": 100553,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100553.webp"
     },
     "101329": {
       "iconId": 100675,
@@ -9884,8 +9884,8 @@
     },
     "101331": {
       "iconId": 100007,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100007.webp"
     },
     "101332": {
       "iconId": 100006,
@@ -9904,8 +9904,8 @@
     },
     "101335": {
       "iconId": 100701,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100701.webp"
     },
     "101336": {
       "iconId": 100702,
@@ -9914,83 +9914,83 @@
     },
     "101337": {
       "iconId": 101337,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101337.webp"
     },
     "101338": {
       "iconId": 101338,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101338.webp"
     },
     "101339": {
       "iconId": 101339,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101339.webp"
     },
     "101340": {
       "iconId": 101340,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101340.webp"
     },
     "101342": {
       "iconId": 101342,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101342.webp"
     },
     "101343": {
       "iconId": 101343,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101343.webp"
     },
     "101344": {
       "iconId": 101344,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101344.webp"
     },
     "101345": {
       "iconId": 101345,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101345.webp"
     },
     "101346": {
       "iconId": 101346,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101346.webp"
     },
     "101347": {
       "iconId": 101347,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101347.webp"
     },
     "101348": {
       "iconId": 101348,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101348.webp"
     },
     "101349": {
       "iconId": 101349,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101349.webp"
     },
     "101350": {
       "iconId": 101350,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101350.webp"
     },
     "101351": {
       "iconId": 101351,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101351.webp"
     },
     "101352": {
       "iconId": 101352,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101352.webp"
     },
     "101353": {
       "iconId": 101353,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101353.webp"
     },
     "101354": {
       "iconId": 101354,
@@ -10009,8 +10009,8 @@
     },
     "101357": {
       "iconId": 101357,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101357.webp"
     },
     "101358": {
       "iconId": 100101,
@@ -10029,8 +10029,8 @@
     },
     "101364": {
       "iconId": 100689,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100689.webp"
     },
     "101365": {
       "iconId": 100615,
@@ -10049,8 +10049,8 @@
     },
     "101370": {
       "iconId": 100452,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100452.webp"
     },
     "101371": {
       "iconId": 100684,
@@ -10069,23 +10069,23 @@
     },
     "101376": {
       "iconId": 101376,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101376.webp"
     },
     "101377": {
       "iconId": 101377,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101377.webp"
     },
     "101378": {
       "iconId": 101378,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101378.webp"
     },
     "101379": {
       "iconId": 101379,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101379.webp"
     },
     "101380": {
       "iconId": 110150,
@@ -10104,28 +10104,28 @@
     },
     "101383": {
       "iconId": 110153,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110153.webp"
     },
     "101384": {
       "iconId": 101384,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101384.webp"
     },
     "101385": {
       "iconId": 101385,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101385.webp"
     },
     "101386": {
       "iconId": 101386,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101386.webp"
     },
     "101387": {
       "iconId": 101387,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101387.webp"
     },
     "101388": {
       "iconId": 100451,
@@ -10224,53 +10224,53 @@
     },
     "101409": {
       "iconId": 100443,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100443.webp"
     },
     "101410": {
       "iconId": 101410,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101410.webp"
     },
     "101411": {
       "iconId": 101411,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101411.webp"
     },
     "101412": {
       "iconId": 101412,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101412.webp"
     },
     "101413": {
       "iconId": 101413,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101413.webp"
     },
     "101414": {
       "iconId": 101414,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101414.webp"
     },
     "101415": {
       "iconId": 101415,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101415.webp"
     },
     "101416": {
       "iconId": 101416,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101416.webp"
     },
     "101417": {
       "iconId": 101417,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101417.webp"
     },
     "101418": {
       "iconId": 101418,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101418.webp"
     },
     "101419": {
       "iconId": 101419,
@@ -10284,13 +10284,13 @@
     },
     "101421": {
       "iconId": 101421,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101421.webp"
     },
     "101422": {
       "iconId": 101422,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101422.webp"
     },
     "101423": {
       "iconId": 110156,
@@ -10299,13 +10299,13 @@
     },
     "101424": {
       "iconId": 101424,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101424.webp"
     },
     "101425": {
       "iconId": 101425,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101425.webp"
     },
     "101426": {
       "iconId": 100023,
@@ -10319,8 +10319,8 @@
     },
     "101428": {
       "iconId": 100670,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100670.webp"
     },
     "101429": {
       "iconId": 100034,
@@ -10374,13 +10374,13 @@
     },
     "101439": {
       "iconId": 100707,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100707.webp"
     },
     "101440": {
       "iconId": 101440,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101440.webp"
     },
     "101441": {
       "iconId": 101441,
@@ -10389,8 +10389,8 @@
     },
     "101442": {
       "iconId": 101442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101442.webp"
     },
     "101443": {
       "iconId": 101443,
@@ -10479,8 +10479,8 @@
     },
     "101460": {
       "iconId": 101460,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101460.webp"
     },
     "101461": {
       "iconId": 100015,
@@ -10534,8 +10534,8 @@
     },
     "101471": {
       "iconId": 100652,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100652.webp"
     },
     "101472": {
       "iconId": 100672,
@@ -10559,8 +10559,8 @@
     },
     "101476": {
       "iconId": 101476,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101476.webp"
     },
     "101477": {
       "iconId": 110169,
@@ -10579,8 +10579,8 @@
     },
     "101480": {
       "iconId": 101480,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101480.webp"
     },
     "101481": {
       "iconId": 101481,
@@ -10684,8 +10684,8 @@
     },
     "101501": {
       "iconId": 100592,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100592.webp"
     },
     "101502": {
       "iconId": 100603,
@@ -10694,8 +10694,8 @@
     },
     "101504": {
       "iconId": 100649,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100649.webp"
     },
     "101505": {
       "iconId": 100676,
@@ -10704,8 +10704,8 @@
     },
     "101506": {
       "iconId": 100742,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100742.webp"
     },
     "101507": {
       "iconId": 100785,
@@ -10739,8 +10739,8 @@
     },
     "101514": {
       "iconId": 101514,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101514.webp"
     },
     "101515": {
       "iconId": 101515,
@@ -10904,8 +10904,8 @@
     },
     "101548": {
       "iconId": 100519,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100519.webp"
     },
     "101549": {
       "iconId": 100791,
@@ -10934,8 +10934,8 @@
     },
     "101554": {
       "iconId": 101554,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101554.webp"
     },
     "101555": {
       "iconId": 101555,
@@ -10979,18 +10979,18 @@
     },
     "101563": {
       "iconId": 101563,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101563.webp"
     },
     "101564": {
       "iconId": 101564,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101564.webp"
     },
     "101565": {
       "iconId": 101565,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101565.webp"
     },
     "101570": {
       "iconId": 101570,
@@ -11149,8 +11149,8 @@
     },
     "101601": {
       "iconId": 110101,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110101.webp"
     },
     "101602": {
       "iconId": 101602,
@@ -11189,18 +11189,18 @@
     },
     "101609": {
       "iconId": 101609,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101609.webp"
     },
     "101610": {
       "iconId": 101609,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101609.webp"
     },
     "101611": {
       "iconId": 101611,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101611.webp"
     },
     "101612": {
       "iconId": 101612,
@@ -11544,8 +11544,8 @@
     },
     "101682": {
       "iconId": 101682,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/101682.webp"
     },
     "101683": {
       "iconId": 101683,
@@ -11574,8 +11574,8 @@
     },
     "102004": {
       "iconId": 100007,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100007.webp"
     },
     "102005": {
       "iconId": 100015,
@@ -11589,8 +11589,8 @@
     },
     "102007": {
       "iconId": 100081,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100081.webp"
     },
     "102008": {
       "iconId": 100091,
@@ -11599,8 +11599,8 @@
     },
     "102009": {
       "iconId": 100041,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100041.webp"
     },
     "102010": {
       "iconId": 100116,
@@ -11629,8 +11629,8 @@
     },
     "102016": {
       "iconId": 100494,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100494.webp"
     },
     "102017": {
       "iconId": 100032,
@@ -11714,8 +11714,8 @@
     },
     "106016": {
       "iconId": 106016,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/106016.webp"
     },
     "106017": {
       "iconId": 106017,
@@ -11749,8 +11749,8 @@
     },
     "110101": {
       "iconId": 110101,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110101.webp"
     },
     "110102": {
       "iconId": 110102,
@@ -11759,8 +11759,8 @@
     },
     "110103": {
       "iconId": 110103,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110103.webp"
     },
     "110104": {
       "iconId": 110104,
@@ -11784,8 +11784,8 @@
     },
     "110108": {
       "iconId": 110108,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110108.webp"
     },
     "110109": {
       "iconId": 110109,
@@ -11969,8 +11969,8 @@
     },
     "110145": {
       "iconId": 110145,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110145.webp"
     },
     "110146": {
       "iconId": 110146,
@@ -12009,8 +12009,8 @@
     },
     "110153": {
       "iconId": 110153,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110153.webp"
     },
     "110154": {
       "iconId": 110154,
@@ -12039,8 +12039,8 @@
     },
     "110159": {
       "iconId": 110159,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110159.webp"
     },
     "110160": {
       "iconId": 110160,
@@ -12049,8 +12049,8 @@
     },
     "110161": {
       "iconId": 110161,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110161.webp"
     },
     "110162": {
       "iconId": 110162,
@@ -12174,8 +12174,8 @@
     },
     "110186": {
       "iconId": 110186,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110186.webp"
     },
     "110187": {
       "iconId": 110187,
@@ -12194,8 +12194,8 @@
     },
     "110190": {
       "iconId": 110190,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110190.webp"
     },
     "110191": {
       "iconId": 110191,
@@ -12204,8 +12204,8 @@
     },
     "110192": {
       "iconId": 110192,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110192.webp"
     },
     "110193": {
       "iconId": 110193,
@@ -12219,8 +12219,8 @@
     },
     "110195": {
       "iconId": 110195,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110195.webp"
     },
     "110196": {
       "iconId": 110196,
@@ -12259,8 +12259,8 @@
     },
     "110203": {
       "iconId": 110203,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110203.webp"
     },
     "110204": {
       "iconId": 110204,
@@ -12314,8 +12314,8 @@
     },
     "110214": {
       "iconId": 110214,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110214.webp"
     },
     "110215": {
       "iconId": 110215,
@@ -12324,8 +12324,8 @@
     },
     "110216": {
       "iconId": 110216,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110216.webp"
     },
     "110217": {
       "iconId": 110217,
@@ -12374,8 +12374,8 @@
     },
     "110226": {
       "iconId": 110226,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110226.webp"
     },
     "110227": {
       "iconId": 110227,
@@ -12494,8 +12494,8 @@
     },
     "110250": {
       "iconId": 110250,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110250.webp"
     },
     "110251": {
       "iconId": 110251,
@@ -12549,8 +12549,8 @@
     },
     "110261": {
       "iconId": 110261,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110261.webp"
     },
     "110262": {
       "iconId": 110262,
@@ -12574,8 +12574,8 @@
     },
     "110266": {
       "iconId": 110266,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110266.webp"
     },
     "110267": {
       "iconId": 110267,
@@ -12604,13 +12604,13 @@
     },
     "110272": {
       "iconId": 110272,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110272.webp"
     },
     "110273": {
       "iconId": 110273,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110273.webp"
     },
     "110274": {
       "iconId": 110274,
@@ -12619,8 +12619,8 @@
     },
     "110275": {
       "iconId": 110275,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110275.webp"
     },
     "110276": {
       "iconId": 110276,
@@ -12664,8 +12664,8 @@
     },
     "110284": {
       "iconId": 110284,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110284.webp"
     },
     "110285": {
       "iconId": 110285,
@@ -12704,8 +12704,8 @@
     },
     "110292": {
       "iconId": 110292,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110292.webp"
     },
     "110293": {
       "iconId": 110293,
@@ -12769,13 +12769,13 @@
     },
     "110305": {
       "iconId": 110305,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110305.webp"
     },
     "110306": {
       "iconId": 110306,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110306.webp"
     },
     "110307": {
       "iconId": 110307,
@@ -13014,8 +13014,8 @@
     },
     "110505": {
       "iconId": 110505,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110505.webp"
     },
     "110506": {
       "iconId": 110506,
@@ -13024,8 +13024,8 @@
     },
     "110507": {
       "iconId": 110507,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/110507.webp"
     },
     "110508": {
       "iconId": 110508,
@@ -13079,8 +13079,8 @@
     },
     "111005": {
       "iconId": 111005,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111005.webp"
     },
     "111006": {
       "iconId": 111006,
@@ -13104,8 +13104,8 @@
     },
     "111010": {
       "iconId": 111010,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111010.webp"
     },
     "111011": {
       "iconId": 111011,
@@ -13129,8 +13129,8 @@
     },
     "111016": {
       "iconId": 111016,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111016.webp"
     },
     "111017": {
       "iconId": 111017,
@@ -13164,8 +13164,8 @@
     },
     "111023": {
       "iconId": 111023,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111023.webp"
     },
     "111024": {
       "iconId": 111024,
@@ -13244,8 +13244,8 @@
     },
     "111039": {
       "iconId": 111039,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111039.webp"
     },
     "111040": {
       "iconId": 111040,
@@ -13259,8 +13259,8 @@
     },
     "111042": {
       "iconId": 111042,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111042.webp"
     },
     "111043": {
       "iconId": 111043,
@@ -13359,13 +13359,13 @@
     },
     "111066": {
       "iconId": 111066,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111066.webp"
     },
     "111067": {
       "iconId": 111067,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/111067.webp"
     },
     "111068": {
       "iconId": 111068,
@@ -13389,8 +13389,8 @@
     },
     "120009": {
       "iconId": 100009,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100009.webp"
     },
     "120011": {
       "iconId": 100011,
@@ -13469,8 +13469,8 @@
     },
     "120442": {
       "iconId": 100442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100442.webp"
     },
     "120450": {
       "iconId": 100450,
@@ -13484,8 +13484,8 @@
     },
     "120473": {
       "iconId": 100473,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100473.webp"
     },
     "120475": {
       "iconId": 100475,
@@ -13504,8 +13504,8 @@
     },
     "120519": {
       "iconId": 100519,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100519.webp"
     },
     "120524": {
       "iconId": 100524,
@@ -13519,8 +13519,8 @@
     },
     "120534": {
       "iconId": 100534,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100534.webp"
     },
     "120575": {
       "iconId": 100575,
@@ -13534,8 +13534,8 @@
     },
     "120592": {
       "iconId": 100592,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100592.webp"
     },
     "120593": {
       "iconId": 100593,
@@ -13569,13 +13569,13 @@
     },
     "120670": {
       "iconId": 100670,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100670.webp"
     },
     "120677": {
       "iconId": 100677,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100677.webp"
     },
     "120708": {
       "iconId": 100708,
@@ -13589,8 +13589,8 @@
     },
     "121001": {
       "iconId": 121001,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/121001.webp"
     },
     "121005": {
       "iconId": 100005,
@@ -13604,13 +13604,13 @@
     },
     "121442": {
       "iconId": 100442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100442.webp"
     },
     "121534": {
       "iconId": 100534,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100534.webp"
     },
     "130002": {
       "iconId": 100002,
@@ -13639,8 +13639,8 @@
     },
     "130007": {
       "iconId": 100007,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100007.webp"
     },
     "130008": {
       "iconId": 100008,
@@ -13649,8 +13649,8 @@
     },
     "130009": {
       "iconId": 100009,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100009.webp"
     },
     "130013": {
       "iconId": 100013,
@@ -13804,13 +13804,13 @@
     },
     "130372": {
       "iconId": 100372,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100372.webp"
     },
     "130374": {
       "iconId": 100374,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100374.webp"
     },
     "130376": {
       "iconId": 100376,
@@ -13824,8 +13824,8 @@
     },
     "130424": {
       "iconId": 100424,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100424.webp"
     },
     "130435": {
       "iconId": 100435,
@@ -13834,13 +13834,13 @@
     },
     "130442": {
       "iconId": 100442,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100442.webp"
     },
     "130443": {
       "iconId": 100443,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100443.webp"
     },
     "130449": {
       "iconId": 100449,
@@ -13859,8 +13859,8 @@
     },
     "130452": {
       "iconId": 100452,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100452.webp"
     },
     "130472": {
       "iconId": 100472,
@@ -13879,8 +13879,8 @@
     },
     "130476": {
       "iconId": 100476,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100476.webp"
     },
     "130477": {
       "iconId": 100477,
@@ -13909,8 +13909,8 @@
     },
     "130494": {
       "iconId": 100494,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100494.webp"
     },
     "130495": {
       "iconId": 100495,
@@ -13934,8 +13934,8 @@
     },
     "130519": {
       "iconId": 100519,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100519.webp"
     },
     "130522": {
       "iconId": 100522,
@@ -13954,18 +13954,18 @@
     },
     "130534": {
       "iconId": 100534,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100534.webp"
     },
     "130553": {
       "iconId": 100553,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100553.webp"
     },
     "130557": {
       "iconId": 100557,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100557.webp"
     },
     "130562": {
       "iconId": 100562,
@@ -13999,8 +13999,8 @@
     },
     "130592": {
       "iconId": 100592,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100592.webp"
     },
     "130593": {
       "iconId": 100593,
@@ -14074,13 +14074,13 @@
     },
     "130649": {
       "iconId": 100649,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100649.webp"
     },
     "130652": {
       "iconId": 100652,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100652.webp"
     },
     "130653": {
       "iconId": 100653,
@@ -14114,8 +14114,8 @@
     },
     "130659": {
       "iconId": 100659,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100659.webp"
     },
     "130660": {
       "iconId": 100660,
@@ -14139,8 +14139,8 @@
     },
     "130670": {
       "iconId": 100670,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100670.webp"
     },
     "130671": {
       "iconId": 100671,
@@ -14164,8 +14164,8 @@
     },
     "130677": {
       "iconId": 100677,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100677.webp"
     },
     "130683": {
       "iconId": 100683,
@@ -14179,8 +14179,8 @@
     },
     "130685": {
       "iconId": 100685,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100685.webp"
     },
     "130687": {
       "iconId": 100687,
@@ -14189,8 +14189,8 @@
     },
     "130689": {
       "iconId": 100689,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100689.webp"
     },
     "130690": {
       "iconId": 100690,
@@ -14214,8 +14214,8 @@
     },
     "130701": {
       "iconId": 100701,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100701.webp"
     },
     "130702": {
       "iconId": 100702,
@@ -14244,8 +14244,8 @@
     },
     "130707": {
       "iconId": 100707,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100707.webp"
     },
     "130708": {
       "iconId": 100708,
@@ -14264,8 +14264,8 @@
     },
     "130742": {
       "iconId": 100742,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100742.webp"
     },
     "130769": {
       "iconId": 100769,
@@ -14419,8 +14419,8 @@
     },
     "130812": {
       "iconId": 100812,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100812.webp"
     },
     "130814": {
       "iconId": 100814,
@@ -14449,8 +14449,8 @@
     },
     "132004": {
       "iconId": 100007,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100007.webp"
     },
     "132005": {
       "iconId": 100015,
@@ -14479,8 +14479,8 @@
     },
     "132016": {
       "iconId": 100494,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100494.webp"
     },
     "132017": {
       "iconId": 100032,
@@ -14499,8 +14499,8 @@
     },
     "140003": {
       "iconId": 100927,
-      "local": false,
-      "output": ""
+      "local": true,
+      "output": "cards/100927.webp"
     },
     "140004": {
       "iconId": 140004,

@@ -107,6 +107,41 @@ class BattlesAllApiTest(unittest.TestCase):
         self.assertEqual(body["total"], 1)
         self.assertEqual(body["data"][0]["battle_id"], 101)
 
+    def test_battles_all_wid_returns_that_land_including_hidden_results(self):
+        conn = self._connect()
+        conn.execute("ALTER TABLE battles_v2 ADD COLUMN wid INTEGER DEFAULT 0")
+        conn.execute("ALTER TABLE battles_v2 ADD COLUMN wid_name TEXT DEFAULT ''")
+        conn.execute(
+            "UPDATE battles_v2 SET wid=7500980, wid_name='土地Lv.2' WHERE battle_id=101"
+        )
+        conn.execute(
+            """
+            INSERT INTO battles_v2(
+                battle_id,time,time_str,result,result_desc,fight_type,atk_name,atk_union,
+                def_name,def_union,garrison,is_npc,defense_phase,wid,wid_name
+            ) VALUES
+                (103,1700000001,'2023-11-14 22:13:21',6,'守方胜',0,'甲','','乙','',0,1,'other',7500980,'土地Lv.2'),
+                (104,1700000002,'2023-11-14 22:13:22',1,'攻方胜',0,'丙','','丁','',0,0,'other',7490980,'')
+            """
+        )
+        conn.commit()
+        conn.close()
+
+        with patch("api_server.get_db", self._connect):
+            response = api_server.app.test_client().get(
+                "/api/battles_all?page=1&size=10&wid=7500980"
+            )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_json()
+        self.assertEqual(body["total"], 2)
+        self.assertEqual(
+            {row["battle_id"] for row in body["data"]},
+            {101, 103},
+        )
+        self.assertEqual(body["data"][0]["wid"], 7500980)
+        self.assertEqual(body["data"][0]["wid_name"], "土地Lv.2")
+
     def test_player_battle_teams_maps_defender_skills_in_6_5_4_order(self):
         conn = self._connect()
         conn.execute(

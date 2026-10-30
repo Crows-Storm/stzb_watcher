@@ -140,6 +140,7 @@ function switchTab(i,el){
   else if(i===32 && typeof loadCommandCenterSettings==='function') loadCommandCenterSettings();
   else if(i===33 && typeof loadIntelligenceCenter==='function') loadIntelligenceCenter();
   else if(i===35 && window.LiveArmyCommand) window.LiveArmyCommand.load();
+  else if(i===36 && typeof loadMyTeams==='function') loadMyTeams();
   else if(i===34 && typeof loadIntelligenceResearch==='function') loadIntelligenceResearch();
 }
 

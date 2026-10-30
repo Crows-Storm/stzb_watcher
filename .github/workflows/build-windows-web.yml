@@ -20,6 +20,7 @@ on:
       - 'realtime_writer.py'
       - 'static/**'
       - 'packaging/pyinstaller/**'
+      - 'packaging/icon/**'
       - 'packaging/scripts/build_web_exe.ps1'
       - '.github/workflows/build-windows-web.yml'
 
@@ -50,14 +51,14 @@ jobs:
       - name: Verify artifact
         shell: pwsh
         run: |
-          $exe = 'dist/STZB助手-Web.exe'
+          $exe = 'dist/Observer-Of-STZB.exe'
           if (-not (Test-Path $exe)) { throw "Missing $exe" }
           Get-Item $exe | Format-List FullName,Length,LastWriteTime
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: STZB-Web-Windows
-          path: dist/STZB助手-Web.exe
+          name: Observer-Of-STZB
+          path: dist/Observer-Of-STZB.exe
           if-no-files-found: error
 
       - name: Publish GitHub Release
@@ -65,6 +66,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.release_tag }}
-          name: STZB Web ${{ inputs.release_tag }}
+          name: Observer Of STZB ${{ inputs.release_tag }}
           generate_release_notes: true
-          files: dist/STZB助手-Web.exe
+          files: dist/Observer-Of-STZB.exe

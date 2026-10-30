@@ -1,32 +1,32 @@
-/* STZB Watcher command-console theme. Loaded after legacy styles by design. */
+/* Observer Of STZB. Gold frame and cyan core match packaging/icon/stzb-watcher.svg. */
 :root {
   color-scheme: dark;
-  --surface-canvas: #060b18;
-  --surface-panel: rgba(12, 22, 40, 0.96);
-  --surface-raised: rgba(15, 29, 50, 0.98);
-  --surface-overlay: rgba(8, 18, 34, 0.78);
-  --surface-modal: rgba(7, 16, 31, 0.96);
-  --surface-inner-highlight: rgba(255, 255, 255, 0.055);
+  --surface-canvas: #0b1019;
+  --surface-panel: rgba(11, 17, 28, 0.96);
+  --surface-raised: rgba(18, 26, 38, 0.98);
+  --surface-overlay: rgba(7, 17, 28, 0.78);
+  --surface-modal: rgba(11, 16, 25, 0.96);
+  --surface-inner-highlight: rgba(232, 200, 106, 0.06);
   --bg-canvas: var(--surface-canvas);
-  --bg-sidebar: #0a1028;
+  --bg-sidebar: #07111c;
   --surface-1: var(--surface-panel);
   --surface-2: var(--surface-raised);
-  --surface-3: #19284f;
-  --surface-4: #243967;
-  --border-subtle: #24365f;
-  --border-strong: #365080;
-  --text-primary: #f4f7ff;
-  --text-secondary: #9aabca;
-  --text-tertiary: #7183a7;
-  --text-inverse: #061127;
-  --primary: #38bdf8;
-  --primary-strong: #2f80ff;
+  --surface-3: #152033;
+  --surface-4: #233043;
+  --border-subtle: #233043;
+  --border-strong: #8a7340;
+  --text-primary: #f6f1e4;
+  --text-secondary: #cbbfa6;
+  --text-tertiary: #8d8270;
+  --text-inverse: #0b1019;
+  --primary: #c8a044;
+  --primary-strong: #e8c86a;
   --success: #34d399;
   --warning: #f5b84b;
   --danger: #f05267;
   --protected: #8b6cff;
-  --info: #54a6ff;
-  --domain-intelligence: #38bdf8;
+  --info: #3ab8c8;
+  --domain-intelligence: #3ab8c8;
   --domain-operations: #f05267;
   --domain-organization: #34d399;
   --domain-analysis: #8b6cff;
@@ -34,7 +34,7 @@
   --domain-accent: var(--domain-intelligence);
   --surface-glass: var(--surface-overlay);
   --surface-elevated: var(--surface-raised);
-  --border-glow: rgba(56, 189, 248, 0.36);
+  --border-glow: rgba(200, 160, 68, 0.36);
   --shadow-raised: 0 10px 28px rgba(0, 4, 18, 0.24);
   --shadow-overlay: 0 18px 48px rgba(0, 4, 18, 0.42);
   --shadow-modal: 0 30px 90px rgba(0, 3, 16, 0.66);
@@ -45,8 +45,8 @@
   --motion-fast: 160ms;
   --motion-standard: 240ms;
   --motion-slow: 360ms;
-  --gradient-primary: linear-gradient(90deg, #2f80ff 0%, #38bdf8 55%, #34d399 100%);
-  --gradient-intensity: linear-gradient(90deg, #38bdf8 0%, #8b6cff 48%, #f5b84b 100%);
+  --gradient-primary: linear-gradient(90deg, #c8a044 0%, #e8c86a 55%, #3ab8c8 100%);
+  --gradient-intensity: linear-gradient(90deg, #3ab8c8 0%, #c8a044 48%, #e8c86a 100%);
   --font-sans: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --space-1: 4px;
@@ -62,8 +62,8 @@
   --radius-lg: 10px;
   --radius-pill: 999px;
   --shadow-panel: 0 10px 28px rgba(0, 5, 22, 0.28);
-  --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.24);
-  --shadow-primary: 0 8px 24px rgba(47, 128, 255, 0.24);
+  --shadow-focus: 0 0 0 3px rgba(200, 160, 68, 0.24);
+  --shadow-primary: 0 8px 24px rgba(200, 160, 68, 0.24);
   --sidebar-width: 208px;
   --header-height: 72px;
 
@@ -77,10 +77,10 @@
   --text: var(--text-primary);
   --text2: var(--text-secondary);
   --muted: var(--text-tertiary);
-  --gold: var(--primary);
-  --gold2: var(--primary);
-  --blue: var(--info);
-  --cyan: var(--primary);
+  --gold: #e8c86a;
+  --gold2: #c8a044;
+  --blue: #3ab8c8;
+  --cyan: #3ab8c8;
   --green: var(--success);
   --amber: var(--warning);
   --red: var(--danger);
@@ -108,8 +108,8 @@ body.stzb-console {
   overflow-x: hidden;
   color: var(--text-primary);
   background:
-    radial-gradient(circle at 78% -12%, rgba(76, 45, 160, 0.2), transparent 34rem),
-    radial-gradient(circle at 35% 0%, rgba(47, 128, 255, 0.11), transparent 30rem),
+    radial-gradient(circle at 78% -12%, rgba(200, 160, 68, 0.16), transparent 34rem),
+    radial-gradient(circle at 18% 0%, rgba(58, 184, 200, 0.1), transparent 30rem),
     var(--bg-canvas);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -138,19 +138,33 @@ body.stzb-console > header {
   padding: 12px 24px;
   border: 0;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(8, 13, 34, 0.92);
+  background: rgba(11, 16, 25, 0.92);
   box-shadow: none;
   backdrop-filter: blur(14px);
 }
 
 body.stzb-console > header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 18px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-shadow: none;
+}
+
+body.stzb-console > header h1 .brand-mark {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 6px;
+}
+
+body.stzb-console > header h1::before {
+  display: none;
 }
 
 .hdr-right { gap: var(--space-4); }
@@ -184,7 +198,7 @@ body.stzb-console > nav {
   overflow: hidden auto;
   border: 0;
   border-right: 1px solid var(--border-subtle);
-  background: linear-gradient(180deg, #0a1028 0%, #080d22 100%);
+  background: linear-gradient(180deg, #07111c 0%, #0b1019 100%);
   backdrop-filter: blur(16px) saturate(1.12);
   scrollbar-width: thin;
 }
@@ -208,10 +222,11 @@ body.stzb-console > nav::before { display: none !important; content: none !impor
   height: 38px;
   grid-row: 1 / 3;
   place-items: center;
-  color: var(--text-inverse);
+  color: var(--primary-strong);
   border-radius: var(--radius-md);
-  background: var(--gradient-primary);
-  box-shadow: var(--shadow-primary);
+  background: transparent;
+  box-shadow: none;
+  object-fit: cover;
 }
 .ds-brand-name { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
 .ds-brand-meta { color: var(--text-tertiary); font: 500 10px/14px var(--font-mono); }
@@ -258,15 +273,15 @@ body.stzb-console > nav button {
 
 body.stzb-console > nav button:hover {
   color: var(--text-primary);
-  border-color: rgba(54, 80, 128, 0.66);
-  background: rgba(25, 40, 79, 0.64);
+  border-color: rgba(138, 115, 64, 0.66);
+  background: rgba(35, 48, 67, 0.64);
 }
 body.stzb-console > nav button.active,
 body.stzb-console > nav button[aria-current="page"] {
   color: var(--text-primary);
-  border-color: rgba(56, 189, 248, 0.34);
-  background: rgba(47, 128, 255, 0.14);
-  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.08);
+  border-color: rgba(200, 160, 68, 0.34);
+  background: rgba(200, 160, 68, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(200, 160, 68, 0.08);
   text-shadow: none;
 }
 body.stzb-console > nav button.active::after {
@@ -969,7 +984,7 @@ input::placeholder, textarea::placeholder { color: var(--text-tertiary); opacity
 
 .ws-grid { background: var(--bg-canvas); border-color: var(--border-subtle); }
 .ws-cell { color: var(--text-secondary); border-color: var(--border-subtle); background: var(--surface-2); }
-.ws-cell.visible { box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35); }
+.ws-cell.visible { box-shadow: inset 0 0 0 1px rgba(200, 160, 68, 0.35); }
 .ws-cell.city { color: var(--warning); border-color: var(--warning); background: rgba(245, 184, 75, 0.08); }
 
 /* Interaction and accessibility */
@@ -1107,7 +1122,6 @@ button, .btn, [onclick] { touch-action: manipulation; }
     width: calc(100vw - 24px);
   }
   .hud-toast { padding-left: 14px; }
-  .github-banner { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1173,10 +1187,10 @@ button, .btn, [onclick] { touch-action: manipulation; }
   justify-content: space-between;
   gap: var(--space-5);
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.24);
+  border: 1px solid rgba(200, 160, 68, 0.24);
   border-radius: 14px;
   background:
-    linear-gradient(115deg, rgba(47, 128, 255, 0.2), rgba(139, 108, 255, 0.08) 46%, rgba(52, 211, 153, 0.06)),
+    linear-gradient(115deg, rgba(200, 160, 68, 0.22), rgba(58, 184, 200, 0.1) 46%, rgba(11, 16, 25, 0.2)),
     var(--surface-1);
   box-shadow: var(--shadow-panel);
 }
@@ -1190,8 +1204,8 @@ button, .btn, [onclick] { touch-action: manipulation; }
   inset: 0;
   opacity: 0.38;
   background-image:
-    linear-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+    linear-gradient(rgba(200, 160, 68, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200, 160, 68, 0.08) 1px, transparent 1px);
   background-size: 32px 32px;
   mask-image: linear-gradient(90deg, transparent, #000 35%, #000);
 }
@@ -1199,10 +1213,10 @@ button, .btn, [onclick] { touch-action: manipulation; }
   width: 280px;
   height: 280px;
   right: -70px;
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  border: 1px solid rgba(200, 160, 68, 0.22);
   border-radius: 50%;
   box-shadow:
-    0 0 0 32px rgba(56, 189, 248, 0.025),
+    0 0 0 32px rgba(200, 160, 68, 0.025),
     0 0 0 64px rgba(139, 108, 255, 0.02);
 }
 .cc-hero > * { position: relative; z-index: 1; }
@@ -1365,7 +1379,7 @@ button, .btn, [onclick] { touch-action: manipulation; }
 .cc-battle-row { grid-template-columns: 58px minmax(0, 1fr) 72px 80px; }
 .cc-battle-row:hover,
 .cc-army-row:hover,
-.cc-alert:hover { background: rgba(25, 40, 79, 0.56); }
+.cc-alert:hover { background: rgba(35, 48, 67, 0.56); }
 .cc-result {
   display: inline-grid;
   min-height: 27px;
@@ -1447,9 +1461,9 @@ button, .btn, [onclick] { touch-action: manipulation; }
 .cc-buffer button {
   padding: 6px 12px;
   color: var(--primary);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(200, 160, 68, 0.3);
   border-radius: var(--radius-pill);
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(200, 160, 68, 0.08);
   cursor: pointer;
 }
 
@@ -1569,8 +1583,8 @@ button, .btn, [onclick] { touch-action: manipulation; }
 }
 .cc-command.is-selected,
 .cc-command:hover {
-  border-color: rgba(56, 189, 248, 0.28);
-  background: rgba(47, 128, 255, 0.14);
+  border-color: rgba(200, 160, 68, 0.28);
+  background: rgba(200, 160, 68, 0.16);
 }
 .cc-command span { display: flex; flex-direction: column; }
 .cc-command small { margin-top: 2px; color: var(--text-tertiary); }

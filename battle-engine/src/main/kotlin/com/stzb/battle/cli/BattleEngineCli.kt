@@ -25,8 +25,8 @@ fun runBattleEngineCli(input: String): String {
 
     repeat(repeat) { idx ->
         val request = BattleRequest(
-            attacker = builder.build(team(root.path("attacker"))),
-            defender = builder.build(team(root.path("defender"))),
+            attacker = builder.build(team(root.path("attacker"), config)),
+            defender = builder.build(team(root.path("defender"), config)),
             maxRounds = 8,
         )
         val result = BattleEngine.resolve(request, config, SeededBattleRandom(seed + idx))
@@ -89,16 +89,31 @@ private fun heroSnapshots(
         }
 }
 
-private fun team(node: JsonNode): List<BattleHeroSpec> =
+private fun team(node: JsonNode, config: BattleConfigRepository): List<BattleHeroSpec> =
     node.path("heroes").mapIndexed { index, hero ->
+        val heroId = hero.path("heroId").asInt()
+        val reportedIds = hero.path("extraSkillIds").map { it.asInt() }.filter { it > 0 }
+        val reportedLevels = hero.path("skillLevels").map { it.asInt() }
+        val innateId = config.hero(heroId)?.initialSkillId ?: 0
+        val paired = reportedIds.mapIndexed { skillIndex, skillId ->
+            skillId to (reportedLevels.getOrNull(skillIndex) ?: 1).coerceIn(1, 10)
+        }
+        val learned = paired.filter { it.first != innateId }
+        val skillLevels = if (reportedLevels.isEmpty()) {
+            emptyList()
+        } else {
+            listOf(paired.firstOrNull { it.first == innateId }?.second ?: 1) +
+                learned.map { it.second }
+        }
         BattleHeroSpec(
-            heroId = hero.path("heroId").asInt(),
+            heroId = heroId,
             position = hero.path("position").asInt(index),
             troops = hero.path("troops").asInt(9000),
             level = hero.path("level").asInt(40),
             advanceLevel = hero.path("advanceLevel").asInt(0),
             morale = node.path("morale").asInt(100),
-            extraSkillIds = hero.path("extraSkillIds").map { it.asInt() },
+            extraSkillIds = learned.map { it.first },
+            skillLevels = skillLevels,
         )
     }
 

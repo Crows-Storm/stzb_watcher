@@ -162,6 +162,8 @@
 
 .sim-team-tools {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--sp-1);
 }
 
@@ -1172,8 +1174,17 @@
   font-size: .56rem;
 }
 
-.sim-library-dialog,
-.sim-template-dialog {
+.sim-own-team-note {
+  margin: 0;
+  padding: 12px var(--sp-4);
+  color: var(--text2);
+  font-size: .72rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sim-own-team-item small {
+  white-space: normal;
+}
   width: min(520px, 94vw);
   max-width: none;
   height: 100vh;

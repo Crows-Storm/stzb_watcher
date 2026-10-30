@@ -6,6 +6,6 @@ if (-not (Get-Command pyinstaller -ErrorAction SilentlyContinue)) {
 }
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue (Join-Path $Root "build"), (Join-Path $Root "dist")
 pyinstaller --clean --noconfirm (Join-Path $Root "packaging/pyinstaller/stzb-web.spec")
-$Exe = Join-Path (Join-Path $Root "dist") "STZB助手-Web.exe"
+$Exe = Join-Path (Join-Path $Root "dist") "Observer-Of-STZB.exe"
 if (-not (Test-Path $Exe)) { throw "没有生成 $Exe" }
 Write-Host "已生成: $Exe"

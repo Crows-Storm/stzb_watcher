@@ -7,6 +7,7 @@ realtime_writer.py
 import sqlite3, json, os, time, glob, threading, queue, sys
 from datetime import datetime
 from collections import deque
+from own_teams import apply_db_sync_packet
 from world_scene.parser import WorldSceneAssembler, parse_world_scene_packet
 from world_scene.state_store import WorldStateStore
 from world_scene.store import WorldSceneStore
@@ -2654,6 +2655,10 @@ class RealtimeWriter:
                     tables = list({e['table_name'] for e in evts})
                     push_event('db_sync', {'tables': tables, 'count': len(evts)})
                     print(f'[db_sync] {len(evts)} ops: {tables}')
+                try:
+                    apply_db_sync_packet(conn, data, os.path.basename(fpath))
+                except Exception as exc:
+                    print(f'[own_teams ERR] {exc}')
 
             elif msg_type == '000018aa':
                 try:

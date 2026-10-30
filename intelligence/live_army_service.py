@@ -7,7 +7,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 import sim_data
 
-from .world_service import freshness
+from .world_service import WorldIntelligenceService, freshness
 
 
 ARMY_STATES = {
@@ -54,7 +54,9 @@ class LiveArmyService:
     def snapshot(self, offline_minutes: int = 10) -> Dict[str, Any]:
         now_ms = self.now_ms()
         if "world_armies" not in self._tables:
-            return self._empty_snapshot(now_ms)
+            empty = self._empty_snapshot(now_ms)
+            empty["viewer"] = self._viewer()
+            return empty
 
         current_rows = self._army_rows(current=True)
         offline_rows = self._army_rows(
@@ -119,6 +121,7 @@ class LiveArmyService:
                 "recentOffline": len(recent_offline),
             },
             "bounds": _bounds_for_armies(current),
+            "viewer": self._viewer(),
             "current": current,
             "recentOffline": recent_offline,
         }
@@ -150,9 +153,66 @@ class LiveArmyService:
                 "recentOffline": 0,
             },
             "bounds": None,
+            "viewer": None,
             "current": [],
             "recentOffline": [],
         }
+
+    def _viewer(self) -> Optional[Dict[str, int]]:
+        identity = self._viewer_from_player_self()
+        if identity and int(identity.get("userId") or 0):
+            return identity
+        named = self._viewer_from_profile_name()
+        return named or identity
+
+    def _viewer_from_player_self(self) -> Optional[Dict[str, int]]:
+        probe = WorldIntelligenceService.__new__(WorldIntelligenceService)
+        probe.conn = self.connection
+        try:
+            identity = WorldIntelligenceService._current_identity(probe)
+        except sqlite3.Error:
+            return None
+        return self._viewer_ids(identity)
+
+    def _viewer_from_profile_name(self) -> Optional[Dict[str, int]]:
+        if "world_map_users" not in self._tables:
+            return None
+        try:
+            from profile_manager import load_current_profile
+            profile = load_current_profile() or {}
+        except (ImportError, OSError, TypeError, ValueError):
+            return None
+        name = " ".join(str(profile.get("role_name") or "").split())
+        if not name or len(name) > 40:
+            return None
+        try:
+            row = self.connection.execute(
+                """
+                SELECT user_id, union_id
+                FROM world_map_users
+                WHERE name=?
+                ORDER BY user_id
+                LIMIT 1
+                """,
+                (name,),
+            ).fetchone()
+        except sqlite3.Error:
+            return None
+        if row is None:
+            return None
+        return self._viewer_ids(
+            {"userId": row["user_id"], "unionId": row["union_id"]}
+        )
+
+    @staticmethod
+    def _viewer_ids(identity) -> Optional[Dict[str, int]]:
+        if not identity:
+            return None
+        user_id = int(identity.get("userId") or 0)
+        union_id = int(identity.get("unionId") or 0)
+        if not user_id and not union_id:
+            return None
+        return {"userId": user_id, "unionId": union_id}
 
     def _current_version(self) -> Dict[str, Any]:
         if "world_state_versions" not in self._tables:

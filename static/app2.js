@@ -1250,7 +1250,8 @@ async function loadBattlesAll(page){
   const result=document.getElementById('ba-result').value;
   const ftype=document.getElementById('ba-ftype').value;
   const period=document.getElementById('ba-period').value;
-  const url=`/api/battles_all?page=${_baPage}&size=50&player=${encodeURIComponent(player)}&union=${encodeURIComponent(union)}&result=${result}&fight_type=${ftype}&period=${period}`;
+  const wid=(document.getElementById('ba-wid')?.value||'').replace(/\D/g,'');
+  const url=`/api/battles_all?page=${_baPage}&size=50&player=${encodeURIComponent(player)}&union=${encodeURIComponent(union)}&result=${result}&fight_type=${ftype}&period=${period}&wid=${encodeURIComponent(wid)}`;
   const r=await apiFetch(url);
   if(!r)return;
   document.getElementById('ba-total').textContent=`共${r.total}条`;
@@ -1276,8 +1277,9 @@ async function loadBattlesAll(page){
     }
     const atkHeroes=[row.atk_hero1_id,row.atk_hero2_id,row.atk_hero3_id].filter(Boolean).map(heroTag).join('');
     const defHeroes=[row.def_hero1_id,row.def_hero2_id,row.def_hero3_id].filter(Boolean).map(heroTag).join('');
+    const place=row.wid?`WID ${row.wid}${row.wid_name?` · ${esc(row.wid_name)}`:''}`:'';
     b.innerHTML+=`<tr style='cursor:pointer' onclick='showBattleDetail(${row.battle_id})'>
-      <td style='font-family:Share Tech Mono,monospace;font-size:.68rem;color:var(--text2)'>${esc(row.time_str||'')}<br><span style='color:var(--text2);font-size:.62rem'>${ft}</span></td>
+      <td style='font-family:Share Tech Mono,monospace;font-size:.68rem;color:var(--text2)'>${esc(row.time_str||'')}<br><span style='color:var(--text2);font-size:.62rem'>${ft}${place?` · ${place}`:''}</span></td>
       <td><b>${esc(row.atk_name||'')}</b><br><span style='color:var(--text2);font-size:.65rem'>${esc(row.atk_union||'')}</span></td>
       <td style='white-space:nowrap'>${atkHeroes||'<span style="color:var(--text2);font-size:.6rem">-</span>'}</td>
       <td style='${rcStyle};font-weight:bold;text-align:center'>${rcText}</td>

@@ -20,7 +20,7 @@ class WindowsReleaseWorkflowTest(unittest.TestCase):
         self.assertIn("github.event_name == 'workflow_dispatch'", WORKFLOW)
         self.assertIn('softprops/action-gh-release@v2', WORKFLOW)
         self.assertIn('tag_name: ${{ inputs.release_tag }}', WORKFLOW)
-        self.assertIn('dist/STZB助手-Web.exe', WORKFLOW)
+        self.assertIn('dist/Observer-Of-STZB.exe', WORKFLOW)
         self.assertIn('contents: write', WORKFLOW)
         self.assertNotIn('app-release.apk', WORKFLOW)
         self.assertNotIn('Set up Java for Android', WORKFLOW)
