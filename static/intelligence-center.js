@@ -828,10 +828,37 @@ if (typeof module !== 'undefined' && module.exports) {
   function renderBattleRow(item) {
     const battleId = Number(item.battle_id);
     const place = item.wid_name ? ` · ${item.wid_name}` : '';
-    const outcome = item.result_desc || battleResultLabel(item.result);
-    return `<button class="intel-battle-row" type="button" data-intel-action="open-battle" data-battle-id="${battleId}">
-      <b>${esc(fmtTime(item.time))}${esc(place)}</b>
-      <span>${esc(item.atk_name || '-')} ${esc(outcome)} ${esc(item.def_name || '-')}</span>
+    const time = fmtTime(item.time);
+    
+    // 格式化队伍显示：武将名(红度)
+    function formatTeam(prefix) {
+      const heroes = [];
+      for (let i = 1; i <= 3; i++) {
+        const heroId = item[`${prefix}_hero${i}_id`];
+        const star = item[`${prefix}_hero${i}_star`] || 0;
+        if (heroId) {
+          const hero = (typeof HERO_CFG !== 'undefined') ? (HERO_CFG[heroId] || HERO_CFG[String(heroId)]) : null;
+          const name = hero?.name || (typeof getHero === 'function' ? getHero(heroId)?.name : null) || `武将${heroId}`;
+          heroes.push(`${name}(${star})`);
+        }
+      }
+      return heroes.join('-') || '—';
+    }
+    
+    const atkTeam = formatTeam('atk');
+    const defTeam = formatTeam('def');
+    
+    return `<button class="intel-battle-row intel-battle-row-compact" type="button" data-intel-action="open-battle" data-battle-id="${battleId}">
+      <div class="intel-battle-time">${esc(time)}</div>
+      <div class="intel-battle-side">
+        <div class="intel-battle-name">${esc(item.atk_name || '-')}</div>
+        <div class="intel-battle-team">${esc(atkTeam)}</div>
+      </div>
+      <div class="intel-battle-vs">VS</div>
+      <div class="intel-battle-side">
+        <div class="intel-battle-name">${esc(item.def_name || '-')}</div>
+        <div class="intel-battle-team">${esc(defTeam)}</div>
+      </div>
     </button>`;
   }
 

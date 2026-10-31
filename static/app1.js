@@ -438,7 +438,7 @@ async function showBattleDetail(bid){
     ${isNPC?`<div><span class='badge badge-draw'>NPC</span></div>`:''}
   </div>`;
 
-  // 武将卡片函数
+  // 武将卡片函数 - 横向紧凑布局
   function heroCard(h,idx,advArr,skillArr,starVal){
     const hero=typeof getHero==='function'?getHero(h.hero_id):{};
     // 优先用 HERO_CFG（stzbHelper 完整武将表）
@@ -449,7 +449,6 @@ async function showBattleDetail(bid){
     const quality=hcfg.quality||0;
     const avatar=hero.avatar||'';
     const rarity=hero.rarity||'';
-    const rarColor={'R':'#8899aa','SR':'#9060d0','SSR':'#c8a044','UR':'#e05050'}[rarity]||'var(--text2)';
     const qualityColor=quality>=5?'#e05050':quality>=4?'#c8a044':'var(--text2)';
     const hpPct=h.max_hp>0?Math.round(h.remain_hp/h.max_hp*100):0;
     const hpColor=hpPct>60?'var(--green)':hpPct>30?'var(--gold)':'var(--red)';
@@ -458,22 +457,26 @@ async function showBattleDetail(bid){
     const skList=skillArr||[];
     const iconId=hcfg.iconId||h.hero_id;
     const imgUrl=`https://g0.gph.netease.com/ngsocial/community/stzb/cn/cards/cut/card_medium_${iconId}.jpg?gameid=g10`;
-    const starStr=star>0?'★'.repeat(Math.min(star,9))+(star>9?'+':''):'—';
+    const starStr=star>0?'★'.repeat(Math.min(star,9))+(star>9?'+':''):'';
     const starColor=star>=7?'#e05050':star>=4?'#c8a044':'var(--text2)';
     const borderColor=star>=7?'#e05050':star>=4?'var(--gold)':(hasAdv?'var(--gold)':'var(--border)');
-    return `<div style='background:var(--panel2);border:1px solid ${borderColor};border-radius:6px;padding:8px;min-width:140px;max-width:170px;position:relative'>
-      <div style='position:absolute;top:4px;right:6px;font-size:.62rem;color:${starColor};letter-spacing:0'>${starStr}</div>
-      <div style='display:flex;gap:8px;align-items:center;margin-bottom:6px'>
-        <img src='${imgUrl}' style='width:40px;height:40px;border-radius:4px;object-fit:cover;object-position:left top;border:1px solid var(--border)' onerror='this.src="";this.style.display="none"'>
-        <div>
-          <div style='font-size:.8rem;font-weight:700;color:var(--text)'>${esc(name)}</div>
-          <div style='font-size:.65rem;color:${qualityColor}'>${country?country+' ':''}${htype||''} Lv.${h.level||0}</div>
+    
+    return `<div class="hero-card-compact" style='background:var(--panel2);border:1px solid ${borderColor};border-radius:8px;padding:10px;position:relative;display:flex;align-items:center;gap:10px;min-width:0'>
+      ${starStr?`<div style='position:absolute;top:6px;right:8px;font-size:.7rem;color:${starColor};font-weight:700;letter-spacing:-1px;text-shadow:0 1px 2px rgba(0,0,0,.3)'>${starStr}</div>`:''}
+      <img src='${imgUrl}' style='width:64px;height:64px;border-radius:6px;object-fit:cover;object-position:center top;border:1px solid var(--border);flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,.2)' onerror='this.src="";this.style.display="none"'>
+      <div style='flex:1;min-width:0;display:flex;flex-direction:column;gap:4px'>
+        <div style='display:flex;align-items:center;gap:6px'>
+          <div style='font-size:.88rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${esc(name)}</div>
+          <div style='font-size:.68rem;color:${qualityColor};white-space:nowrap'>${country?country+' ':''}${htype||''}</div>
         </div>
+        <div style='font-size:.72rem;color:var(--text2);display:flex;align-items:center;gap:8px'>
+          <span>Lv.${h.level||0}</span>
+          <span style='color:${hpColor}'>HP ${h.remain_hp||0}/${h.max_hp||0}</span>
+          ${h.damage_taken>0?`<span style='color:var(--red)'>受伤 ${fmt(h.damage_taken)}</span>`:''}
+        </div>
+        <div style='height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:2px 0'><div style='height:100%;width:${hpPct}%;background:${hpColor};transition:width .5s;border-radius:2px'></div></div>
+        ${skList.length?`<div style='display:flex;flex-wrap:wrap;gap:4px;margin-top:2px'>${skList.map(s=>`<span style='font-size:.68rem;color:var(--cyan);background:var(--panel);padding:2px 6px;border-radius:3px;white-space:nowrap'>${esc(s)}</span>`).join('')}</div>`:''}
       </div>
-      <div style='font-size:.68rem;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between'><span>HP</span><span style='color:${hpColor}'>${h.remain_hp||0}/${h.max_hp||0}</span></div>
-      <div style='height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:6px'><div style='height:100%;width:${hpPct}%;background:${hpColor};transition:width .5s'></div></div>
-      ${h.damage_taken>0?`<div style='font-size:.67rem;color:var(--red);margin-bottom:4px'>受伤: ${fmt(h.damage_taken)}</div>`:''}
-      ${skList.length?`<div style='border-top:1px solid var(--border);margin-top:5px;padding-top:5px'>${skList.map(s=>`<div style='font-size:.65rem;color:var(--cyan);line-height:1.6;display:flex;align-items:center;gap:3px'><span style='color:var(--muted)'>▸</span>${esc(s)}</div>`).join('')}</div>`:''}
     </div>`;
   }
 
@@ -484,16 +487,16 @@ async function showBattleDetail(bid){
   if(atkHeroes.length>0||defHeroes.length>0){
     html+=`<div style='margin-bottom:10px'>`;
     if(atkHeroes.length>0){
-      html+=`<div style='font-size:.73rem;color:var(--text2);letter-spacing:.1em;margin-bottom:6px'>⚔ 攻方武将</div>`;
-      html+=`<div style='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px'>`;
+      html+=`<div style='font-size:.8rem;font-weight:700;color:var(--text);letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px'><span>⚔</span><span>攻方武将</span></div>`;
+      html+=`<div style='display:flex;flex-direction:column;gap:8px;margin-bottom:16px'>`;
       atkHeroes.forEach((h,i)=>{
         html+=heroCard(h,i,atkAdv,[...(skills[i+1]||[])],atkStars[i+1]);
       });
       html+=`</div>`;
     }
     if(defHeroes.length>0){
-      html+=`<div style='font-size:.73rem;color:var(--text2);letter-spacing:.1em;margin-bottom:6px'>🛡 守方武将</div>`;
-      html+=`<div style='display:flex;flex-wrap:wrap;gap:8px'>`;
+      html+=`<div style='font-size:.8rem;font-weight:700;color:var(--text);letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px'><span>🛡</span><span>守方武将</span></div>`;
+      html+=`<div style='display:flex;flex-direction:column;gap:8px'>`;
       defHeroes.forEach((h,i)=>{
         html+=heroCard(h,i,defAdv,[...(skills[i+4]||[])],defStars[i+1]);
       });
