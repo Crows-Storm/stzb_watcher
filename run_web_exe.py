@@ -5,7 +5,7 @@ import argparse
 import threading
 import webbrowser
 
-# Beta版本授权验证
+# 赠予版授权验证
 try:
     from beta_license import enforce_beta_license
     BETA_MODE = True
@@ -33,7 +33,7 @@ def run_server(**kwargs) -> None:
 
 
 def main(argv=None) -> None:
-    # Beta版本授权验证
+    # 赠予版授权验证
     if BETA_MODE:
         enforce_beta_license()
     

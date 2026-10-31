@@ -1,5 +1,5 @@
 """
-Beta版本授权验证模块
+赠予版授权验证模块
 - IP白名单验证
 - 时间期限验证
 - 设备指纹绑定
@@ -23,8 +23,8 @@ except ImportError:
 # ==================== 配置区 ====================
 # 打包时修改这些参数
 
-# Beta过期时间戳 (2025-01-31 23:59:59)
-BETA_EXPIRY_TIMESTAMP = 1738335599
+# 授权过期时间戳 (2026-12-31 23:59:59)
+BETA_EXPIRY_TIMESTAMP = 1798761599
 
 # 授权IP白名单（支持多个IP，用于动态IP场景）
 ALLOWED_IPS = [
@@ -201,7 +201,7 @@ def check_expiry():
     
     if current_time > BETA_EXPIRY_TIMESTAMP:
         expiry_date = datetime.fromtimestamp(BETA_EXPIRY_TIMESTAMP).strftime("%Y-%m-%d %H:%M:%S")
-        return False, f"Beta测试期已结束（有效期至 {expiry_date}）"
+        return False, f"授权期已结束（有效期至 {expiry_date}）"
     
     # 计算剩余天数
     remaining_seconds = BETA_EXPIRY_TIMESTAMP - current_time
@@ -214,7 +214,7 @@ def check_expiry():
 def print_banner():
     """打印启动横幅"""
     print("=" * 70)
-    print(" Observer Of STZB - Beta 测试版".center(70))
+    print(" Observer Of STZB - 赠予版 [指挥官Level]".center(70))
     print("=" * 70)
 
 
@@ -276,7 +276,7 @@ def verify_beta_license():
     # 判断是否通过
     if not expiry_ok:
         # 过期必定失败
-        return False, "Beta版本已过期"
+        return False, "授权已过期"
     
     if STRICT_MODE:
         # 严格模式：IP和设备必须都通过
@@ -302,6 +302,7 @@ def enforce_beta_license():
     如果验证失败，打印信息并退出程序
     """
     print_banner()
+    print("\n⚠️  重要提示：本版本为人情赠予，请勿传播\n")
     print_license_info()
     
     passed, message = verify_beta_license()
@@ -311,7 +312,8 @@ def enforce_beta_license():
         print(" ❌ 授权验证失败".center(70))
         print("=" * 70)
         print(f"\n{message}\n")
-        print("如需继续使用，请联系开发者")
+        print("如需帮助，请联系开发者")
+        print("Telegram: @sander678")
         print("=" * 70)
         input("\n按回车键退出...")
         sys.exit(1)
