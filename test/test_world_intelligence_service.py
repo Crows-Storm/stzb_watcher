@@ -109,6 +109,14 @@ class WorldIntelligenceServiceTest(unittest.TestCase):
             detail["battleStats"]["commonLineups"][0]["key"],
             "101.102.103",
         )
+        self.assertEqual(detail["battleStats"]["neighborBattles"], [])
+
+    def test_empty_tile_lists_adjacent_battle_reports(self):
+        stats = self.service._tile_battle_stats(10005)
+        self.assertEqual(stats["sampleSize"], 0)
+        self.assertEqual(stats["neighborBattles"][0]["wid"], 10004)
+        self.assertEqual(stats["neighborBattles"][0]["sampleSize"], 3)
+        self.assertEqual(stats["neighborBattles"][0]["recentBattles"][0]["battle_id"], 3)
 
     def test_summary_exposes_real_tile_bounds_and_focus_window(self):
         summary = self.service.summary()
@@ -269,6 +277,101 @@ class WorldIntelligenceServiceTest(unittest.TestCase):
         self.assertEqual(risk["ownership"]["relation"], "unknown")
         self.assertEqual(risk["components"]["enemyOwnership"], 0)
         self.assertIn("enemyOwnership", risk["unknownComponents"])
+
+    def test_fortress_owner_name_comes_from_map_user_when_tile_union_is_empty(self):
+        self.conn.execute("DELETE FROM player_self")
+        self.conn.execute(
+            """
+            INSERT INTO world_map_users(
+                user_id,name,role_id,union_id,union_name,raw_json,source_seq
+            ) VALUES(11980,'朔风丨老男孩',9051231,1006,'终丨受命于天','[]',1)
+            """
+        )
+        self.conn.execute(
+            "UPDATE world_tiles SET user_id=11980, union_id=0 WHERE wid=10004"
+        )
+        risk = self.service.risk_for_tile(10004)
+        self.assertEqual(risk["ownership"]["relation"], "unknown")
+        self.assertEqual(risk["ownership"]["ownerUserId"], 11980)
+        self.assertEqual(risk["ownership"]["ownerName"], "朔风丨老男孩")
+        self.assertEqual(risk["ownership"]["ownerUnionId"], 1006)
+        self.assertEqual(risk["ownership"]["ownerUnionName"], "终丨受命于天")
+        self.assertEqual(risk["components"]["enemyOwnership"], 0)
+
+    def test_search_finds_player_main_city_and_high_land(self):
+        self.conn.execute(
+            """
+            INSERT INTO world_map_users(
+                user_id,name,role_id,union_id,union_name,raw_json,source_seq
+            ) VALUES(11281,'虹下丨郁金香',1,1006,'天丨水泊梁山','[]',1)
+            """
+        )
+        self.conn.execute(
+            """
+            INSERT INTO world_tiles(
+                wid,row,col,city_type,city_param,user_id,union_id,
+                protect_end_time,name,belong_city,world_city_state,
+                guard_end_time,force,state_id,view_range_add,
+                raw_world_city,source_seq
+            )
+            SELECT 3940956,394,956,1,city_param,11281,1006,protect_end_time,
+                   '虹下丨郁金香',belong_city,world_city_state,guard_end_time,
+                   force,state_id,view_range_add,raw_world_city,source_seq
+            FROM world_tiles WHERE wid=10004
+            """
+        )
+        self.conn.execute(
+            """
+            INSERT INTO world_tile_chunks(
+                wid,chunk_type,raw_json,source_seq,observed_at_ms
+            ) VALUES
+                (1700633,'8','64',1,1000),
+                (1800800,'8','82',1,1000)
+            """
+        )
+        players = self.service.search_players("郁金香")
+        self.assertEqual([3940956], [item["wid"] for item in players["players"]])
+        self.assertEqual("虹下丨郁金香", players["players"][0]["name"])
+        self.assertEqual("天丨水泊梁山", players["players"][0]["unionName"])
+        self.assertEqual((394, 956), (players["players"][0]["row"], players["players"][0]["col"]))
+        with self.assertRaises(ValueError):
+            self.service.search_players("   ")
+        lands = self.service.search_high_land(7)
+        levels = {item["wid"]: item["landLevel"] for item in lands["lands"]}
+        self.assertEqual(8, levels[1800800])
+        self.assertEqual(7, levels[10004])
+        self.assertNotIn(1700633, levels)
+        self.assertEqual(1800800, lands["lands"][0]["wid"])
+        self.assertEqual(lands["total"], len(levels))
+
+    def test_viewport_resolves_occupier_union(self):
+        self.conn.execute(
+            """
+            INSERT INTO world_map_users(
+                user_id,name,role_id,union_id,union_name,raw_json,source_seq
+            ) VALUES(77,'守格人',77,1006,'我盟','[]',9)
+            """
+        )
+        self.conn.executemany(
+            """
+            INSERT INTO world_tiles(
+                wid,row,col,city_type,city_param,user_id,union_id,
+                name,belong_city,source_seq
+            ) VALUES(?,?,?,?,?,?,?,?,?,1)
+            """,
+            [
+                (7300972, 730, 972, 8, 14609, 88, 1016, "濮阳", 0),
+                (7300970, 730, 970, 7, 80009, 77, 0, "", 7300972),
+                (981451, 98, 1451, 9, 71001, 0, 0, "要塞", 0),
+            ],
+        )
+        tiles = {
+            item["wid"]: item
+            for item in self.service.viewport(98, 730, 970, 1451)["tiles"]
+        }
+        self.assertEqual(1016, tiles[7300972]["ownerUnionId"])
+        self.assertEqual(1006, tiles[7300970]["ownerUnionId"])
+        self.assertEqual(0, tiles[981451]["ownerUnionId"])
 
 
 if __name__ == "__main__":

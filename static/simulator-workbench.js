@@ -30,6 +30,33 @@ function clone(value) {
   return value == null ? value : structuredClone(value);
 }
 
+export function lineupFromOwnTeam(reportTeam, morale = 100) {
+  const slots = Array.isArray(reportTeam?.slots) ? reportTeam.slots : [];
+  const heroes = slots.slice(0, 3).map((slot, index) => {
+    const hero = slot?.hero || {};
+    const skills = (hero.skills || [])
+      .map((skill) => ({
+        id: integer(skill?.id),
+        level: Math.min(10, Math.max(1, integer(skill?.level, 1))),
+      }))
+      .filter((skill) => skill.id > 0)
+      .slice(0, 3);
+    const position = { 前排: 0, 中排: 1, 后排: 2 }[slot?.slot];
+    const troops = integer(hero.hpMax ?? hero.hp, 0);
+    const lineupHero = {
+      id: integer(hero.heroId || hero.id),
+      position: position == null ? index : position,
+      level: integer(hero.level, 40),
+      up: integer(hero.advance ?? hero.up, 0),
+      equip_skills: skills.map((skill) => skill.id),
+      skillLevels: skills.map((skill) => skill.level),
+    };
+    if (troops > 0) lineupHero.troops = troops;
+    return lineupHero;
+  });
+  return { morale: integer(morale, 100), heroes };
+}
+
 function integer(value, fallback = 0) {
   const parsed = Number(value);
   return Number.isInteger(parsed) ? parsed : fallback;
@@ -38,9 +65,19 @@ function integer(value, fallback = 0) {
 function normalizeSkillIds(hero) {
   const source =
     hero?.equip_skills || hero?.equipSkills || hero?.extraSkillIds || [];
-  return [0, 1].map((index) => {
+  const count = Math.max(2, Math.min(3, source.length || 0));
+  return Array.from({ length: count }, (_, index) => {
     const skillId = integer(source[index], 0);
     return skillId > 0 ? skillId : 0;
+  });
+}
+
+function normalizeSkillLevels(hero, count) {
+  const source = hero?.skillLevels || hero?.skill_levels || [];
+  if (!source.length) return null;
+  return Array.from({ length: count }, (_, index) => {
+    const level = integer(source[index], 0);
+    return level > 0 ? Math.min(10, level) : 0;
   });
 }
 
@@ -49,6 +86,9 @@ function normalizeHero(hero, fallbackPosition = 0) {
   if (id <= 0) throw new Error("invalid hero id");
   const position = integer(hero?.position, fallbackPosition);
   if (position < 0 || position > 2) throw new Error("invalid hero position");
+  const equip_skills = normalizeSkillIds(hero);
+  const skillLevels = normalizeSkillLevels(hero, equip_skills.length);
+  const troops = integer(hero?.troops ?? hero?.hpMax, 0);
   return {
     id,
     position,
@@ -57,7 +97,9 @@ function normalizeHero(hero, fallbackPosition = 0) {
       9,
       Math.max(0, integer(hero?.up ?? hero?.advanceLevel, 0)),
     ),
-    equip_skills: normalizeSkillIds(hero),
+    equip_skills,
+    ...(skillLevels ? { skillLevels } : {}),
+    ...(troops > 0 ? { troops: Math.min(20000, troops) } : {}),
   };
 }
 
@@ -165,7 +207,11 @@ export function simulatorReducer(state, action) {
           const skillId = integer(action.skillId);
           if (skillId <= 0) throw new Error("invalid skill id");
           equip_skills[integer(action.slot)] = skillId;
-          return { ...hero, equip_skills };
+          if (!hero.skillLevels) return { ...hero, equip_skills };
+          const skillLevels = [...hero.skillLevels];
+          while (skillLevels.length < equip_skills.length) skillLevels.push(0);
+          skillLevels[integer(action.slot)] = 1;
+          return { ...hero, equip_skills, skillLevels };
         }),
       );
     case "clearHeroSkill":
@@ -173,7 +219,11 @@ export function simulatorReducer(state, action) {
         updateHero(team, integer(action.position), (hero) => {
           const equip_skills = [...hero.equip_skills];
           equip_skills[integer(action.slot)] = 0;
-          return { ...hero, equip_skills };
+          if (!hero.skillLevels) return { ...hero, equip_skills };
+          const skillLevels = [...hero.skillLevels];
+          while (skillLevels.length < equip_skills.length) skillLevels.push(0);
+          skillLevels[integer(action.slot)] = 0;
+          return { ...hero, equip_skills, skillLevels };
         }),
       );
     case "setMorale":
@@ -651,7 +701,17 @@ function escapeHtml(value) {
 }
 
 function formatNumber(value) {
-  return Number(value || 0).toLocaleString("zh-CN");
+  const number = Number(value);
+  return (Number.isFinite(number) ? number : 0).toLocaleString("zh-CN");
+}
+
+function formatMetric(value) {
+  return typeof value === "number" ? formatNumber(value) : String(value ?? "");
+}
+
+function formatPercent(value) {
+  const rate = Number(value);
+  return `${Number.isFinite(rate) ? rate : 0}%`;
 }
 
 function shortCommit(value) {
@@ -785,6 +845,8 @@ function teamMarkup(side) {
         <div><h3>${label}</h3><span>${code} · 3 SLOT FORMATION</span></div>
       </div>
       <div class="sim-team-tools">
+        <button class="sim-icon-button" type="button" data-sim-action="open-own-teams"
+          data-side="${side}">我的队伍</button>
         <button class="sim-icon-button" type="button" data-sim-action="copy-side"
           data-from="${side}" data-to="${opposite}">复制至${attacker ? "守方" : "攻方"}</button>
       </div>
@@ -823,9 +885,10 @@ function heroCardMarkup(side, hero) {
       ? "cdn"
       : "local";
   const accent = CAMP_COLORS[Number(info.camp) || 0];
-  const skills = [0, 1]
-    .map((slot) => skillSlotMarkup(side, hero, slot))
-    .join("");
+  const slotCount = Math.max(2, hero.equip_skills.length);
+  const skills = Array.from({ length: slotCount }, (_, slot) =>
+    skillSlotMarkup(side, hero, slot),
+  ).join("");
   return `
     <article class="sim-hero-card" data-side="${side}" data-position="${hero.position}"
       data-camp="${Number(info.camp) || 0}"
@@ -994,12 +1057,12 @@ function renderResult() {
   if (!replay.hidden && firstRun) renderReplay(firstRun, analysis);
 }
 
-function resultSummaryMarkup(response, firstRun, analysis) {
+export function resultSummaryMarkup(response, firstRun, analysis) {
   const single = Number(response.repeat || response.engineResult?.repeat || 1) === 1;
   const result = response.result || {};
   const outcome = single
     ? result.winner || outcomeLabel(firstRun?.outcome)
-    : `攻方 ${response.blue_rate || 0}%`;
+    : `攻方 ${formatPercent(response.blue_rate)}`;
   const subtitle = single
     ? `${result.rounds_played || firstRun?.roundsPlayed || 0} 回合 · ${
         firstRun?.events?.length || 0
@@ -1017,9 +1080,9 @@ function resultSummaryMarkup(response, firstRun, analysis) {
         ["效果阻挡", analysis?.totals.blockedEffects || 0],
       ]
     : [
-        ["攻方胜率", `${response.blue_rate || 0}%`],
-        ["守方胜率", `${response.red_rate || 0}%`],
-        ["平局率", `${response.draw_rate || 0}%`],
+        ["攻方胜率", formatPercent(response.blue_rate)],
+        ["守方胜率", formatPercent(response.red_rate)],
+        ["平局率", formatPercent(response.draw_rate)],
         ["实际次数", response.repeat || 0],
         ["攻方胜场", response.blue_wins || 0],
         ["守方胜场", response.red_wins || 0],
@@ -1055,7 +1118,7 @@ function resultSummaryMarkup(response, firstRun, analysis) {
           .map(
             ([label, value]) => `
               <div class="sim-metric-card"><span>${escapeHtml(label)}</span>
-                <strong>${escapeHtml(formatNumber(value))}</strong></div>`,
+                <strong>${escapeHtml(formatMetric(value))}</strong></div>`,
           )
           .join("")}
       </div>
@@ -1077,7 +1140,7 @@ function resultSummaryMarkup(response, firstRun, analysis) {
 function viewButton(view, label) {
   return `
     <button type="button" class="${
-      browserRuntime.state.activeResultView === view ? "is-active" : ""
+      browserRuntime.state?.activeResultView === view ? "is-active" : ""
     }" data-sim-action="set-result-view" data-view="${view}">${label}</button>
   `;
 }
@@ -1482,13 +1545,28 @@ function snapshotMarkup(snapshots) {
 function payloadFromState() {
   const mapTeam = (team) => ({
     morale: team.morale,
-    heros: team.heroes.map((hero) => ({
-      id: hero.id,
-      position: hero.position,
-      level: hero.level,
-      up: hero.up,
-      equip_skills: hero.equip_skills.filter((skillId) => skillId > 0),
-    })),
+    heros: team.heroes.map((hero) => {
+      const skillIds = [];
+      const skillLevels = [];
+      hero.equip_skills.forEach((skillId, index) => {
+        if (skillId > 0) {
+          skillIds.push(skillId);
+          const level = integer(hero.skillLevels?.[index], 1);
+          skillLevels.push(level > 0 ? level : 1);
+        }
+      });
+      const payload = {
+        id: hero.id,
+        position: hero.position,
+        level: hero.level,
+        up: hero.up,
+        equip_skills: skillIds,
+      };
+      if (skillLevels.length) payload.skill_levels = skillLevels;
+      const troops = integer(hero.troops, 0);
+      if (troops > 0) payload.troops = troops;
+      return payload;
+    }),
   });
   return {
     repeat: browserRuntime.state.repeat,
@@ -1951,11 +2029,88 @@ function importTemplateFromDialog() {
 }
 
 function closeDialogs() {
-  for (const id of ["sim-library-dialog", "sim-template-dialog"]) {
+  for (const id of ["sim-library-dialog", "sim-template-dialog", "sim-own-team-dialog"]) {
     const dialog = document.getElementById(id);
     if (dialog?.open) dialog.close();
   }
   dispatch({ type: "closeDrawer" }, false);
+}
+
+async function openOwnTeamPicker(side) {
+  if (!["attacker", "defender"].includes(side)) return;
+  browserRuntime.ownTeamSide = side;
+  for (const id of ["sim-library-dialog", "sim-template-dialog"]) {
+    document.getElementById(id)?.close();
+  }
+  const dialog = document.getElementById("sim-own-team-dialog");
+  if (!dialog) return;
+  dialog.innerHTML = `<div class="sim-dialog-shell"><div class="sim-empty-state">正在读取我的队伍…</div></div>`;
+  if (!dialog.open) dialog.showModal();
+  const response = await fetch("/api/my-teams");
+  if (!response.ok) throw new Error("HTTP " + response.status);
+  const data = await response.json();
+  browserRuntime.ownTeams = data.reportTeams || [];
+  renderOwnTeamDialog();
+}
+
+function renderOwnTeamDialog() {
+  const dialog = document.getElementById("sim-own-team-dialog");
+  if (!dialog) return;
+  const side = browserRuntime.ownTeamSide === "defender" ? "defender" : "attacker";
+  const label = side === "defender" ? "守方" : "攻方";
+  const teams = browserRuntime.ownTeams || [];
+  const rows = teams.length
+    ? teams.map((team, index) => ownTeamPickerItem(team, index, side, label)).join("")
+    : `<div class="sim-empty-state">还没有满编三人的自己的队伍</div>`;
+  dialog.innerHTML = `
+    <div class="sim-dialog-shell">
+      <div class="sim-dialog-head">
+        <div><span class="sim-kicker">MY TEAMS</span><h2 id="sim-own-team-title">选择我的队伍</h2></div>
+        <button class="sim-icon-button" type="button" data-sim-action="close-dialog">关闭</button>
+      </div>
+      <p class="sim-own-team-note">应用到${label}。等级、进阶和前两个战法会写入对应栏位。</p>
+      <div class="sim-template-list">${rows}</div>
+    </div>
+  `;
+}
+
+function ownTeamPickerItem(team, index, side, label) {
+  const names = (team.slots || [])
+    .map((slot) => slot.hero?.name)
+    .filter(Boolean)
+    .join(" / ");
+  const detail = (team.slots || [])
+    .map((slot) => {
+      const hero = slot.hero || {};
+      const skills = (hero.skills || [])
+        .slice(0, 2)
+        .map((skill) => skill.name || `#${skill.id}`)
+        .join(" · ");
+      return `${slot.slot || ""} ${hero.name || ""} Lv.${hero.level || "?"} ${skills}`.trim();
+    })
+    .join(" / ");
+  return `
+    <div class="sim-template-item sim-own-team-item">
+      <span class="sim-library-avatar">队</span>
+      <button type="button" class="sim-template-main" data-sim-action="apply-own-team"
+        data-side="${side}" data-team-index="${index}">
+        <strong>${escapeHtml(names || "队伍")}</strong>
+        <small>${escapeHtml(detail)}</small>
+      </button>
+      <button class="sim-icon-button" type="button" data-sim-action="apply-own-team"
+        data-side="${side}" data-team-index="${index}">应用到${label}</button>
+    </div>
+  `;
+}
+
+function applyOwnTeam(side, index) {
+  const team = (browserRuntime.ownTeams || [])[index];
+  if (!team || !browserRuntime.state?.[side]) return;
+  const lineup = lineupFromOwnTeam(team, browserRuntime.state[side].morale);
+  dispatch({ type: "loadLineup", side, lineup });
+  document.getElementById("sim-own-team-dialog")?.close();
+  const names = lineup.heroes.map((hero) => heroInfo(hero.id).name).join(" / ");
+  setStatus(`已应用到${side === "defender" ? "守方" : "攻方"}：${names}`);
 }
 
 function handleClick(event) {
@@ -1986,6 +2141,12 @@ function handleClick(event) {
     }
   } else if (action === "copy-side") {
     dispatch({ type: "copySide", from: trigger.dataset.from, to: trigger.dataset.to });
+  } else if (action === "open-own-teams") {
+    openOwnTeamPicker(side).catch((error) => {
+      setStatus(`我的队伍读取失败：${error.message}`, "error");
+    });
+  } else if (action === "apply-own-team") {
+    applyOwnTeam(side, Number(trigger.dataset.teamIndex));
   } else if (action === "set-repeat") {
     dispatch({ type: "setRepeat", repeat: Number(trigger.dataset.repeat) });
   } else if (action === "swap-sides") {

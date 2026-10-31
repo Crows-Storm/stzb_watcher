@@ -1,6 +1,6 @@
 #tab35 {
   --live-army-accent: var(--domain-accent);
-  --live-army-cyan: #38bdf8;
+  --live-army-cyan: #3ab8c8;
   --live-army-violet: #8b6cff;
   --live-army-danger: #f05267;
   --live-army-warning: #f5b84b;
@@ -604,6 +604,39 @@
   background: transparent;
 }
 
+.live-army-map-legend i[data-side="self"] {
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.live-army-map-legend i[data-side="ally"] {
+  border-radius: 50%;
+  background: #54a6ff;
+}
+
+.live-army-map-legend i[data-side="enemy"] {
+  border-radius: 50%;
+  background: #f05267;
+}
+
+.live-army-map-legend i[data-side="unknown"] {
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.live-army-map-legend i[data-line="solid"],
+.live-army-map-legend i[data-line="dashed"] {
+  width: 16px;
+  height: 0;
+  border: 0;
+  border-top: 2px solid #d7e3f8;
+  background: transparent;
+}
+
+.live-army-map-legend i[data-line="dashed"] {
+  border-top-style: dashed;
+}
+
 .live-army-detail-panel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -989,6 +1022,26 @@
   .live-army-card {
     padding-right: 8px;
   }
+}
+
+#tab35.page.active {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height));
+  overflow: hidden;
+}
+
+#tab35.page.active .live-army-shell {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+
+#tab35.page.active .live-army-map-wrap,
+#tab35.page.active #live-army-map-canvas {
+  height: 100%;
+  min-height: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

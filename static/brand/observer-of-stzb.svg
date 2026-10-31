@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img">
+  <title>Observer Of STZB</title>
+  <defs>
+    <clipPath id="field">
+      <path d="M18 35 L32 21 L46 35 Q32 49 18 35 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="#0b1019"/>
+  <rect x="1.25" y="1.25" width="61.5" height="61.5" rx="11" fill="none" stroke="#c8a044" stroke-width="1.5"/>
+  <g fill="none" stroke="#e8c86a" stroke-width="2.6" stroke-linecap="square">
+    <path d="M8 20 V8 H20"/>
+    <path d="M44 8 H56 V20"/>
+    <path d="M8 44 V56 H20"/>
+    <path d="M44 56 H56 V44"/>
+  </g>
+  <path d="M18 35 L32 21 L46 35 Q32 49 18 35 Z" fill="#07111c" stroke="#c8a044" stroke-width="2.4" stroke-linejoin="round"/>
+  <g clip-path="url(#field)" fill="none" stroke-linecap="round">
+    <path d="M20 34 H44" stroke="#233043" stroke-width="1.6"/>
+    <path d="M20 39 H44" stroke="#233043" stroke-width="1.6"/>
+    <path d="M27 26 V46" stroke="#233043" stroke-width="1.6"/>
+    <path d="M37 26 V46" stroke="#233043" stroke-width="1.6"/>
+    <path d="M21 37 Q32 32 43 37" stroke="#8a7340" stroke-width="1.5"/>
+  </g>
+  <path d="M32 29 L36.5 35 L32 41 L27.5 35 Z" fill="#e8c86a"/>
+  <path d="M32 32 L34.2 35 L32 38 L29.8 35 Z" fill="#3ab8c8"/>
+</svg>

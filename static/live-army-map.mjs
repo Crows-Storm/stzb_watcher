@@ -1,3 +1,5 @@
+import { MARCH_ARROW_COLOR, marchArrowTriangle, marchArrows } from "./intelligence-map.mjs";
+
 const STATE_SHAPES = Object.freeze({
   normal: "circle",
   expedition: "arrow",
@@ -21,6 +23,38 @@ const STATE_COLORS = Object.freeze({
   stay: "#9aabca",
   unknown: "#c98555",
 });
+
+export const RELATION_COLORS = Object.freeze({
+  self: "#34d399",
+  ally: "#54a6ff",
+  enemy: "#f05267",
+  unknown: "#94a3b8",
+});
+
+export function relationFor(userId, unionId, viewer) {
+  const user = Number(userId) || 0;
+  const union = Number(unionId) || 0;
+  const selfUser = Number(viewer?.userId) || 0;
+  const selfUnion = Number(viewer?.unionId) || 0;
+  if (selfUser && user && user === selfUser) return "self";
+  if (selfUnion && union && union === selfUnion) return "ally";
+  if (
+    selfUser
+    && user
+    && user !== selfUser
+    && selfUnion
+    && union
+    && union !== selfUnion
+  ) {
+    return "enemy";
+  }
+  return "unknown";
+}
+
+export function wheelZoomFactor(deltaY) {
+  const clamped = Math.max(-48, Math.min(48, Number(deltaY) || 0));
+  return Math.min(1.08, Math.max(0.93, Math.exp(clamped * 0.0011)));
+}
 
 export function widToPoint(wid) {
   const value = Number(wid) || 0;
@@ -63,6 +97,7 @@ export function buildArmyDrawPlan(
   selectedArmyId,
   bounds,
   viewport = { width: 800, height: 560 },
+  options = {},
 ) {
   const normalizedBounds = normalizeBounds(bounds);
   const mapRect = {
@@ -73,6 +108,7 @@ export function buildArmyDrawPlan(
   };
   const markers = [];
   const routes = [];
+  const viewer = options?.viewer || null;
   for (const army of armies || []) {
     const location = army?.location || {};
     const current = projectWid(
@@ -88,17 +124,25 @@ export function buildArmyDrawPlan(
     const shape = stale
       ? "diamond"
       : STATE_SHAPES[army.stateKey] || "diamond";
-    const color = offline
+    const relation = relationFor(
+      army.userId,
+      army.ownerUnionId,
+      viewer,
+    );
+    const color = RELATION_COLORS[relation] || RELATION_COLORS.unknown;
+    const evidenceColor = offline
       ? "#7183a7"
       : stale
         ? "#f5b84b"
-      : STATE_COLORS[army.stateKey] || STATE_COLORS.unknown;
+        : STATE_COLORS[army.stateKey] || STATE_COLORS.unknown;
     markers.push({
       armyId: Number(army.armyId) || 0,
       x: current.x,
       y: current.y,
       shape,
       color,
+      relation,
+      evidenceColor,
       stateKey: army.stateKey || "unknown",
       stateLabel: army.stateLabel || "状态未知",
       selected: Number(army.armyId) === Number(selectedArmyId),
@@ -132,6 +176,7 @@ export function buildArmyDrawPlan(
       armyId: Number(army.armyId) || 0,
       kind: routeKind,
       color,
+      relation,
       selected: Number(army.armyId) === Number(selectedArmyId),
       points: routePoints,
     });
@@ -167,8 +212,18 @@ export function drawLiveArmyMap(
   context.fillRect(0, 0, width, height);
   drawGrid(context, plan.mapRect);
 
-  for (const route of plan.routes || []) drawRoute(context, route);
-  for (const marker of plan.markers || []) {
+  const paintOrder = (item) => {
+    const rank = { unknown: 0, enemy: 1, ally: 2, self: 3 }[item.relation] || 0;
+    return rank + (item.selected ? 10 : 0);
+  };
+  const routes = [...(plan.routes || [])].sort(
+    (left, right) => paintOrder(left) - paintOrder(right),
+  );
+  const markers = [...(plan.markers || [])].sort(
+    (left, right) => paintOrder(left) - paintOrder(right),
+  );
+  for (const route of routes) drawRoute(context, route);
+  for (const marker of markers) {
     drawMarker(context, marker, { reducedMotion });
   }
   return plan;
@@ -208,7 +263,12 @@ export function zoomBounds(bounds, row, col, direction) {
   const current = normalizeBounds(bounds);
   const currentRows = current.rowDown - current.rowUp + 1;
   const currentCols = current.colRight - current.colLeft + 1;
-  const factor = Number(direction) < 0 ? 0.72 : 1.38;
+  const numeric = Number(direction);
+  const factor = numeric === -1
+    ? 0.72
+    : numeric === 1
+      ? 1.38
+      : Math.min(1.12, Math.max(0.88, Number.isFinite(numeric) ? numeric : 1));
   const rows = Math.max(8, Math.min(1200, Math.round(currentRows * factor)));
   const cols = Math.max(8, Math.min(1200, Math.round(currentCols * factor)));
   const rowRatio = currentRows
@@ -283,17 +343,30 @@ function drawRoute(context, route) {
   context.strokeStyle = route.color;
   context.lineWidth = route.selected ? 3 : 1.5;
   context.globalAlpha = route.kind === "offline" ? 0.45 : 0.82;
-  if (route.kind === "incomplete") context.setLineDash([7, 5]);
-  else if (route.kind === "stale") context.setLineDash([2, 5]);
-  else if (route.kind === "offline") context.setLineDash([3, 6]);
-  else context.setLineDash([]);
-  context.beginPath();
-  context.moveTo(route.points[0].x, route.points[0].y);
-  for (const point of route.points.slice(1)) {
-    context.lineTo(point.x, point.y);
+  // 根据关系设置箭头颜色：敌方为红色箭头，我方/盟友为蓝色箭头
+  const arrowColor = route.relation === "enemy" ? "#f05267" : "#54a6ff";
+  context.fillStyle = arrowColor;
+  for (let index = 1; index < route.points.length; index += 1) {
+    const start = route.points[index - 1];
+    const end = route.points[index];
+    const arrows = marchArrows(start.x, start.y, end.x, end.y);
+    context.beginPath();
+    context.setLineDash([]);
+    context.moveTo(start.x, start.y);
+    context.lineTo(end.x, end.y);
+    context.stroke();
+    context.setLineDash([]);
+    context.globalAlpha = route.kind === "offline" ? 0.7 : 1;
+    for (const arrow of arrows) {
+      const triangle = marchArrowTriangle(arrow, 8, 6);
+      context.beginPath();
+      context.moveTo(triangle[0].x, triangle[0].y);
+      context.lineTo(triangle[1].x, triangle[1].y);
+      context.lineTo(triangle[2].x, triangle[2].y);
+      context.closePath();
+      context.fill();
+    }
   }
-  context.stroke();
-  context.setLineDash([]);
   context.restore();
 }
 
@@ -301,8 +374,10 @@ function drawMarker(context, marker) {
   context.save();
   context.translate(marker.x, marker.y);
   context.globalAlpha = marker.offline ? 0.5 : 1;
-  context.fillStyle = "#0c1430";
-  context.strokeStyle = marker.color;
+  context.fillStyle = marker.color;
+  context.strokeStyle = marker.stale || marker.offline
+    ? marker.evidenceColor || marker.color
+    : "#f4f7ff";
   context.lineWidth = marker.selected ? 2.5 : 1.5;
   if (marker.offline) context.setLineDash([3, 3]);
   drawShape(context, marker.shape);

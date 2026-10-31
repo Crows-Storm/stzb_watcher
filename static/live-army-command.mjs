@@ -422,18 +422,33 @@ export function createLiveArmyCommand({
       if (armyId) selectArmy(armyId);
       await openInIntelligence();
     });
-    canvas?.addEventListener?.("wheel", (event) => {
-      if (!state.mapPlan?.bounds || !mapModule.zoomBounds) return;
-      event.preventDefault?.();
-      const point = canvasPoint(canvas, event);
-      const anchor = worldPointForCanvas(point, state.mapPlan);
-      state.bounds = mapModule.zoomBounds(
-        state.mapPlan.bounds,
-        anchor.row,
-        anchor.col,
-        Number(event.deltaY) < 0 ? -1 : 1,
-      );
-      renderMap();
+    bindGentleWheel(canvas, {
+      onPan(frame) {
+        if (!state.mapPlan?.bounds || !mapModule.panBounds) return;
+        const bounds = normalizedBounds(state.mapPlan.bounds);
+        const rows = bounds.rowDown - bounds.rowUp + 1;
+        const cols = bounds.colRight - bounds.colLeft + 1;
+        state.bounds = mapModule.panBounds(
+          bounds,
+          (frame.y / Math.max(1, canvas.clientHeight)) * rows * 0.55,
+          (frame.x / Math.max(1, canvas.clientWidth)) * cols * 0.55,
+        );
+        renderMap();
+      },
+      onZoom(frame) {
+        if (!state.mapPlan?.bounds || !mapModule.zoomBounds) return;
+        const point = canvasPoint(canvas, frame);
+        const anchor = worldPointForCanvas(point, state.mapPlan);
+        const factor = mapModule.wheelZoomFactor?.(frame.zoom)
+          ?? (Number(frame.zoom) < 0 ? 0.94 : 1.06);
+        state.bounds = mapModule.zoomBounds(
+          state.mapPlan.bounds,
+          anchor.row,
+          anchor.col,
+          factor,
+        );
+        renderMap();
+      },
     });
     canvas?.addEventListener?.("pointerdown", (event) => {
       state.drag = {
@@ -850,6 +865,7 @@ export function createLiveArmyCommand({
         width: canvas.clientWidth || 800,
         height: canvas.clientHeight || 560,
       },
+      { viewer: state.snapshot?.viewer || null },
     );
     mapModule.drawLiveArmyMap?.(canvas, state.mapPlan, {
       devicePixelRatio: windowRef?.devicePixelRatio || 1,
@@ -1385,6 +1401,39 @@ function canvasPoint(canvas, event) {
     x: (Number(event?.clientX) || 0) - Number(rect.left || 0),
     y: (Number(event?.clientY) || 0) - Number(rect.top || 0),
   };
+}
+
+function bindGentleWheel(canvas, { onPan, onZoom }) {
+  let queued = null;
+  canvas?.addEventListener?.("wheel", (event) => {
+    event.preventDefault?.();
+    const mode = Number(event.deltaMode) || 0;
+    const scale = mode === 1 ? 16 : mode === 2 ? 120 : 1;
+    const dx = (Number(event.deltaX) || 0) * scale;
+    const dy = (Number(event.deltaY) || 0) * scale;
+    const zooming = Boolean(event.ctrlKey || event.metaKey);
+    if (!queued) {
+      queued = { x: 0, y: 0, zoom: 0, clientX: 0, clientY: 0, zooming: false };
+      requestAnimationFrame(() => {
+        const frame = queued;
+        queued = null;
+        if (!frame) return;
+        frame.x = Math.max(-72, Math.min(72, frame.x));
+        frame.y = Math.max(-72, Math.min(72, frame.y));
+        frame.zoom = Math.max(-48, Math.min(48, frame.zoom));
+        if (frame.zooming && frame.zoom) onZoom?.(frame);
+        else if (frame.x || frame.y) onPan?.(frame);
+      });
+    }
+    queued.x += dx;
+    queued.y += dy;
+    queued.clientX = Number(event.clientX) || 0;
+    queued.clientY = Number(event.clientY) || 0;
+    if (zooming) {
+      queued.zooming = true;
+      queued.zoom += dy;
+    }
+  }, { passive: false });
 }
 
 function worldPointForCanvas(point, plan) {

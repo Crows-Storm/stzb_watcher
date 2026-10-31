@@ -57,6 +57,30 @@ def register_world_intelligence_api(app, get_connection, now_ms=None):
             return jsonify({"ok": False, "error": str(error)}), 400
         return jsonify({"ok": True, **result})
 
+    @app.route("/api/intelligence/world/search/players")
+    def intelligence_search_players():
+        world = service()
+        try:
+            found = world.search_players(
+                request.args.get("name", ""),
+                request.args.get("limit", 20),
+            )
+        except (TypeError, ValueError) as error:
+            return jsonify({"ok": False, "error": str(error)}), 400
+        return jsonify({"ok": True, **world.envelope(), **found})
+
+    @app.route("/api/intelligence/world/search/land")
+    def intelligence_search_land():
+        world = service()
+        try:
+            found = world.search_high_land(
+                request.args.get("minLevel", 7),
+                request.args.get("limit", 80),
+            )
+        except (TypeError, ValueError) as error:
+            return jsonify({"ok": False, "error": str(error)}), 400
+        return jsonify({"ok": True, **world.envelope(), **found})
+
     @app.route("/api/intelligence/world/tile/<int:wid>")
     def intelligence_world_tile(wid):
         result = service().tile_detail(wid)

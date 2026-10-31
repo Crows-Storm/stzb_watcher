@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>率土战场指挥台</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/static/brand/observer-of-stzb.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/static/brand/apple-touch-icon.png">
+<title>Observer Of STZB</title>
 <style>
 :root{
   /* ── surfaces (dark data console) ── */
@@ -78,40 +81,6 @@ header h1{
 }
 .github-link svg{flex-shrink:0;opacity:.7;}
 .github-link:hover svg{opacity:1;}
-.github-banner{
-  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-  z-index:9999;
-  display:flex;align-items:center;gap:8px;
-  background:rgb(11,16,25);
-  border:1px solid var(--gold);border-radius:24px;
-  padding:7px 22px;
-  box-shadow:0 0 24px #c8a04430,0 2px 16px #00000080;
-  font-family:var(--font-mono);font-size:.78rem;
-  color:var(--text2);
-  text-decoration:none;
-  transition:color .2s,border-color .2s,box-shadow .2s,transform .2s;
-  animation:banner-in .5s ease;
-}
-.github-banner:hover{
-  color:var(--gold);
-  border-color:var(--gold2);
-  box-shadow:0 0 36px #c8a04460,0 2px 20px #00000080;
-  transform:translateX(-50%) translateY(-2px);
-}
-.github-banner svg{opacity:.8;}
-.github-banner:hover svg{opacity:1;}
-.github-banner .gb-star{
-  color:var(--gold);font-size:.9rem;
-  animation:star-pulse 2s infinite;
-}
-@keyframes banner-in{
-  from{opacity:0;transform:translateX(-50%) translateY(16px);}
-  to{opacity:1;transform:translateX(-50%) translateY(0);}
-}
-@keyframes star-pulse{
-  0%,100%{text-shadow:none;}
-  50%{text-shadow:0 0 10px var(--gold);}
-}
 
 /* ===== NAV TABS ===== */
 nav{
@@ -554,8 +523,6 @@ tbody tr:hover{background:rgba(31,43,61,.78);}
 }
 #query-agent-input{min-height:78px;border-radius:var(--r-sm);}
 #query-agent-fab{right:clamp(12px,2vw,28px);bottom:64px;z-index:960;box-shadow:0 8px 24px rgba(0,0,0,.35);}
-.github-banner{bottom:18px;left:18px;transform:none;border-radius:var(--r-sm);padding:7px 12px;font-size:.72rem;}
-.github-banner:hover{transform:translateY(-2px);}
 
 @media(max-width:760px){
   :root{--console-header-height:112px;--console-nav-height:48px;}
@@ -581,37 +548,35 @@ tbody tr:hover{background:rgba(31,43,61,.78);}
   .tbl-scroll{max-height:none;}
   table{min-width:680px;}
   .split2,.split3{grid-template-columns:1fr;}
-  .github-banner{left:auto;right:12px;bottom:12px;}
   #query-agent-fab{bottom:56px;right:12px;z-index:960;}
-  .github-banner + *{margin-bottom:0;}
 }
 
 /* ===== DESIGN SYSTEM FINAL TOKENS ===== */
 :root{
-  --bg-canvas:#080d22;
-  --bg-sidebar:#0a1028;
-  --surface-1:#0c1430;
-  --surface-2:#121d3f;
-  --surface-3:#19284f;
-  --surface-4:#243967;
-  --border-subtle:#24365f;
-  --border-strong:#365080;
-  --text-primary:#f4f7ff;
-  --text-secondary:#9aabca;
-  --text-tertiary:#7183a7;
-  --text-inverse:#061127;
-  --primary:#38bdf8;
-  --primary-strong:#2f80ff;
+  --bg-canvas:#0b1019;
+  --bg-sidebar:#07111c;
+  --surface-1:#0b111c;
+  --surface-2:#121a26;
+  --surface-3:#152033;
+  --surface-4:#233043;
+  --border-subtle:#233043;
+  --border-strong:#8a7340;
+  --text-primary:#f6f1e4;
+  --text-secondary:#cbbfa6;
+  --text-tertiary:#8d8270;
+  --text-inverse:#0b1019;
+  --primary:#c8a044;
+  --primary-strong:#e8c86a;
   --success:#34d399;
   --warning:#f5b84b;
   --danger:#f05267;
   --protected:#8b6cff;
-  --info:#54a6ff;
-  --gradient-primary:linear-gradient(90deg,#2f80ff 0%,#38bdf8 55%,#34d399 100%);
-  --gradient-intensity:linear-gradient(90deg,#38bdf8 0%,#8b6cff 48%,#f5b84b 100%);
+  --info:#3ab8c8;
+  --gradient-primary:linear-gradient(90deg,#c8a044 0%,#e8c86a 55%,#3ab8c8 100%);
+  --gradient-intensity:linear-gradient(90deg,#3ab8c8 0%,#c8a044 48%,#e8c86a 100%);
   --shadow-panel:0 10px 28px rgba(0,5,22,.28);
-  --shadow-focus:0 0 0 3px rgba(56,189,248,.24);
-  --shadow-primary:0 8px 24px rgba(47,128,255,.24);
+  --shadow-focus:0 0 0 3px rgba(200,160,68,.24);
+  --shadow-primary:0 8px 24px rgba(200,160,68,.24);
   --space-1:4px;
   --space-2:8px;
   --space-3:12px;
@@ -638,13 +603,13 @@ tbody tr:hover{background:rgba(31,43,61,.78);}
   --text2:var(--text-secondary);
   --muted:var(--text-tertiary);
   --on-accent:var(--text-inverse);
-  --gold:var(--primary);
-  --gold2:#7dd3fc;
+  --gold:#e8c86a;
+  --gold2:#c8a044;
   --green:var(--success);
   --amber:var(--warning);
   --red:var(--danger);
-  --blue:var(--info);
-  --cyan:var(--primary);
+  --blue:#3ab8c8;
+  --cyan:#3ab8c8;
   --purple:var(--protected);
   --r-sm:var(--radius-sm);
   --r-md:var(--radius-md);
@@ -659,7 +624,7 @@ tbody tr:hover{background:rgba(31,43,61,.78);}
   --shadow-sm:var(--shadow-panel);
   --shadow-md:var(--shadow-panel);
   --shadow-lg:0 16px 40px rgba(0,5,22,.4);
-  --glow-gold:0 0 18px rgba(56,189,248,.24);
+  --glow-gold:0 0 18px rgba(200,160,68,.24);
   --glow-green:0 0 10px rgba(52,211,153,.42);
   --focus-ring:var(--shadow-focus);
 }
@@ -708,8 +673,8 @@ nav button{
 nav button:hover{background:var(--surface-2);color:var(--text-primary);}
 nav button.active{
   color:var(--text-primary);
-  background:rgba(56,189,248,.1);
-  border-color:rgba(56,189,248,.24);
+  background:rgba(200,160,68,.1);
+  border-color:rgba(200,160,68,.24);
   text-shadow:none;
 }
 nav button.active::after{background:var(--primary);}
@@ -783,7 +748,7 @@ td.num,th.num{font-family:var(--font-mono);}
 .prog-fill{background:var(--gradient-primary);}
 .ws-subtabs{background:var(--surface-2);border-color:var(--border-subtle);}
 .ws-subtab{font-family:var(--font-sans);}
-.ws-subtab.active{color:var(--primary);border-color:var(--primary);background:rgba(56,189,248,.08);}
+.ws-subtab.active{color:var(--primary);border-color:var(--primary);background:rgba(200,160,68,.08);}
 .query-agent-panel{background:var(--surface-1);border-color:var(--border-strong);}
 #query-agent-input{background:var(--surface-2);border-color:var(--border-strong);font-family:var(--font-sans);}
 #query-agent-fab{background:var(--gradient-primary);}
@@ -799,9 +764,9 @@ td.num,th.num{font-family:var(--font-mono);}
   }
   body{
     background:
-      radial-gradient(circle at 78% 0%,rgba(77,48,150,.2),transparent 31rem),
-      radial-gradient(circle at 42% 85%,rgba(24,64,126,.13),transparent 34rem),
-      linear-gradient(135deg,#090b22 0%,#100d2d 48%,#080b1b 100%);
+      radial-gradient(circle at 78% 0%,rgba(200,160,68,.16),transparent 31rem),
+      radial-gradient(circle at 18% 0%,rgba(58,184,200,.1),transparent 34rem),
+      linear-gradient(135deg,#0b1019 0%,#07111c 48%,#0b1019 100%);
   }
   body::after{
     content:"";
@@ -821,8 +786,8 @@ td.num,th.num{font-family:var(--font-mono);}
     margin-left:var(--workspace-sidebar);
     min-height:76px;
     padding:16px var(--workspace-gutter) 13px;
-    background:linear-gradient(180deg,rgba(8,8,28,.86),rgba(10,9,31,.52));
-    border-bottom-color:rgba(120,105,203,.2);
+    background:linear-gradient(180deg,rgba(11,16,25,.92),rgba(11,16,25,.72));
+    border-bottom-color:rgba(200,160,68,.28);
     box-shadow:none;
   }
   header h1{
@@ -922,15 +887,15 @@ td.num,th.num{font-family:var(--font-mono);}
     transform:scaleY(0);
   }
   nav button:hover{
-    color:#f0efff;
-    background:rgba(91,77,180,.2);
-    border-color:rgba(127,114,216,.2);
+    color:#f6f1e4;
+    background:rgba(200,160,68,.12);
+    border-color:rgba(200,160,68,.28);
   }
   nav button.active{
-    color:#f5f0ff;
-    background:linear-gradient(90deg,rgba(79,69,162,.46),rgba(64,54,137,.18));
-    border-color:rgba(132,119,221,.25);
-    box-shadow:inset 0 0 24px rgba(111,94,219,.1);
+    color:#f6f1e4;
+    background:linear-gradient(90deg,rgba(200,160,68,.28),rgba(58,184,200,.08));
+    border-color:rgba(200,160,68,.4);
+    box-shadow:inset 0 0 24px rgba(200,160,68,.08);
   }
   nav button.active::after{transform:scaleY(1);}
   .page{
@@ -962,31 +927,30 @@ td.num,th.num{font-family:var(--font-mono);}
     border-color:rgba(125,113,196,.32);
   }
   .btn-primary{
-    background:linear-gradient(100deg,#5f9feb,#69d0b1);
+    background:linear-gradient(100deg,#c8a044,#3ab8c8);
     border-color:transparent;
-    color:#11162b;
+    color:#0b1019;
     box-shadow:0 8px 18px rgba(63,140,210,.18);
   }
-  .btn-primary:hover{color:#11162b;background:linear-gradient(100deg,#76b4ff,#7ee0c1);}
+  .btn-primary:hover{color:#0b1019;background:linear-gradient(100deg,#e8c86a,#3ab8c8);}
   .query-agent-panel{
     background:rgba(25,22,68,.94);
     border-color:rgba(137,122,226,.5);
   }
-  .github-banner{left:auto;right:28px;background:rgba(25,22,68,.82);border-color:rgba(137,122,226,.36);}
 }
 
 @media(max-width:760px){
   body{
     background:
-      radial-gradient(circle at 80% 0%,rgba(77,48,150,.16),transparent 24rem),
-      linear-gradient(135deg,#090b22 0%,#100d2d 48%,#080b1b 100%);
+      radial-gradient(circle at 80% 0%,rgba(200,160,68,.16),transparent 24rem),
+      linear-gradient(135deg,#0b1019 0%,#07111c 48%,#0b1019 100%);
   }
-  header{background:rgba(10,9,31,.9);border-bottom-color:rgba(120,105,203,.24);}
+  header{background:rgba(11,16,25,.92);border-bottom-color:rgba(200,160,68,.28);}
   nav{background:rgba(14,14,45,.94);border-bottom-color:rgba(114,103,183,.24);}
   nav button.active{background:rgba(79,69,162,.38);}
   .tbl-wrap,.stat-card,.filters{background:linear-gradient(145deg,rgba(34,29,83,.78),rgba(20,19,58,.82));border-color:rgba(117,105,192,.3);}
   .tbl-head{background:rgba(44,37,103,.48);}
-  .btn-primary{background:linear-gradient(100deg,#5f9feb,#69d0b1);border-color:transparent;color:#11162b;}
+  .btn-primary{background:linear-gradient(100deg,#c8a044,#3ab8c8);border-color:transparent;color:#0b1019;}
 }
 
 /* ===== SPEC COMPLIANCE OVERRIDES ===== */
@@ -1021,8 +985,8 @@ td.num,th.num{font-family:var(--font-mono);}
     border-color:var(--border-subtle);
   }
   nav button.active{
-    background:rgba(56,189,248,.1);
-    border-color:rgba(56,189,248,.3);
+    background:rgba(200,160,68,.1);
+    border-color:rgba(200,160,68,.3);
     box-shadow:none;
   }
   nav button.active::after{
@@ -1084,7 +1048,7 @@ td.num,th.num{font-family:var(--font-mono);}
 </head>
 <body class="stzb-console">
 <header aria-label="全局状态栏">
-  <h1>率土战场指挥台</h1>
+  <h1><img class="brand-mark" src="/static/brand/observer-of-stzb.svg" alt="" width="28" height="28">Observer Of STZB</h1>
   <div class='hdr-right'>
     <span class='hdr-stat' aria-live="polite"><span class='conn-dot' id='cdot'></span><span id='cstat'>连接中</span></span>
     <span class='hdr-stat'>战报 <span id='hc-battles'>0</span></span>
@@ -1098,6 +1062,7 @@ td.num,th.num{font-family:var(--font-mono);}
   </div>
 </header>
 <nav aria-label="主导航">
+  <button onclick='switchTab(36,this)'>我的队伍</button>
   <button onclick='switchTab(7,this)'>玩家队伍</button>
   <button onclick='switchTab(8,this)'>自定义积分</button>
   <button onclick='switchTab(16,this)'>打城考勤</button>
@@ -1354,6 +1319,23 @@ td.num,th.num{font-family:var(--font-mono);}
     </div>
   </div>
 </div>
+<!-- TAB 36: 我的队伍 -->
+<div class='page hud-page' id='tab36' data-visual-domain='organization'>
+  <header class="hud-page-head">
+    <div>
+      <span class="hud-page-kicker">MY TEAMS / SELF</span>
+      <h2 class="hud-page-title">我的队伍</h2>
+      <p class="hud-page-summary">用右上角的当前账号，从自己的战报里整理出过场的队伍、武将和战法。</p>
+    </div>
+    <div class="hud-page-actions">
+      <span class="hud-status-chip" id="my-teams-status">WAITING</span>
+      <button class="btn btn-primary" type="button" onclick="loadMyTeams()">刷新队伍</button>
+    </div>
+  </header>
+  <div id="my-teams-root" class="my-team-board">
+    <div class="hud-state">打开此页后读取已抓到的自己的队伍。</div>
+  </div>
+</div>
 <!-- TAB 7: 玩家队伍 -->
 <div class='page hud-page' id='tab7' data-visual-domain='organization'>
   <header class="hud-page-head">
@@ -1455,6 +1437,7 @@ td.num,th.num{font-family:var(--font-mono);}
 <!-- TAB 10: 全部战报 -->
 <div class='page' id='tab10'>
   <div class='filters'>
+    <input id='ba-wid' placeholder='WID...' inputmode='numeric' style='width:110px'/>
     <input id='ba-player' placeholder='玩家名...' style='width:120px'/>
     <input id='ba-union' placeholder='联盟名...' style='width:120px'/>
     <select id='ba-result'>
@@ -1893,8 +1876,8 @@ td.num,th.num{font-family:var(--font-mono);}
     <div class='hud-panel-head'>
       <h3 id='tr-table-title'>分组战斗数据</h3>
       <div class='tbl-controls'>
-        <button class='btn' onclick='exportTeamReportPDF()'>导出 PDF</button>
-        <button class='btn' onclick='exportTeamReportLongImage()'>导出长图</button>
+        <button class='btn organization-export' type='button' onclick='exportTeamReportPDF()'>导出 PDF</button>
+        <button class='btn organization-export' type='button' onclick='exportTeamReportLongImage()'>导出长图</button>
       </div>
     </div>
     <div class='hud-table-scroll'>
@@ -1974,6 +1957,7 @@ td.num,th.num{font-family:var(--font-mono);}
     </section>
     <dialog id="sim-library-dialog" class="sim-library-dialog" aria-labelledby="sim-library-title"></dialog>
     <dialog id="sim-template-dialog" class="sim-template-dialog" aria-labelledby="sim-template-title"></dialog>
+    <dialog id="sim-own-team-dialog" class="sim-template-dialog" aria-labelledby="sim-own-team-title"></dialog>
   </section>
 </div>
 
@@ -2218,21 +2202,33 @@ td.num,th.num{font-family:var(--font-mono);}
     </div>
     <section id="intel-view-map" class="intel-primary-view active" role="tabpanel">
     <div id="intel-loader-state" class="hud-state-host intel-loader-state" aria-live="polite"></div>
-    <div class="intel-toolbar hud-toolbar">
-      <button class="intel-layer active" data-layer="all">综合态势</button>
-      <button class="intel-layer active" data-layer="ownership">势力归属</button>
-      <button class="intel-layer active" data-layer="armies">行军威胁</button>
-      <button class="intel-layer active" data-layer="freshness">情报新鲜度</button>
-      <button class="intel-layer active" data-layer="paths">路径</button>
-      <div class="intel-locator">
-        <input id="intel-wid-input" inputmode="numeric" placeholder="输入 WID 定位" aria-label="输入 WID 定位">
-        <button class="btn" type="button" onclick="IntelligenceCenter.locateWid()">定位</button>
-      </div>
-      <span class="intel-map-mode" id="intel-map-mode">战术镜头</span>
-      <span class="intel-state-meta" id="intel-state-meta">WorldState 未初始化</span>
-      <button class="btn btn-primary" onclick="loadIntelligenceCenter()">刷新情报</button>
-    </div>
     <div class="intel-workspace hud-panel">
+      <aside class="intel-filters" aria-label="地图筛选">
+        <div class="intel-toolbar hud-toolbar">
+          <button id="intel-stage-back" class="btn" type="button">返回</button>
+          <span class="intel-stage-title">全图</span>
+          <div class="intel-layer-row">
+            <button class="intel-layer active" data-layer="all">综合态势</button>
+            <button class="intel-layer active" data-layer="ownership">势力归属</button>
+            <button class="intel-layer active" data-layer="armies">行军威胁</button>
+            <button class="intel-layer active" data-layer="freshness">情报新鲜度</button>
+            <button class="intel-layer active" data-layer="paths">路径</button>
+          </div>
+          <div class="intel-locator">
+            <input id="intel-wid-input" inputmode="numeric" placeholder="输入 WID 定位" aria-label="输入 WID 定位">
+            <button class="btn" type="button" onclick="IntelligenceCenter.locateWid()">定位</button>
+          </div>
+          <div class="intel-searchbar">
+            <input id="intel-player-input" type="search" placeholder="玩家名，例如 郁金香" aria-label="按玩家名检索主城">
+            <button class="btn" id="intel-player-search" type="button">找玩家</button>
+            <button class="btn" id="intel-land-search" type="button">七级及以上</button>
+          </div>
+          <span class="intel-map-mode" id="intel-map-mode">战术镜头</span>
+          <span class="intel-state-meta" id="intel-state-meta">WorldState 未初始化</span>
+          <button class="btn btn-primary" onclick="loadIntelligenceCenter()">刷新情报</button>
+        </div>
+        <div id="intel-search-results" class="intel-search-results" hidden></div>
+      </aside>
       <section class="intel-map-wrap intel-map-shell hud-map-shell">
         <canvas id="intel-map-canvas" aria-label="战场情报风险地图"></canvas>
         <div id="intel-risk-lock" class="intel-risk-lock-overlay" aria-hidden="true" hidden></div>
@@ -2241,24 +2237,60 @@ td.num,th.num{font-family:var(--font-mono);}
           <button id="intel-radar-toggle" type="button" aria-label="折叠或展开全局雷达">全域雷达</button>
           <canvas id="intel-radar-canvas" aria-label="全局雷达"></canvas>
         </div>
+        <div id="intel-map-help-panel" class="intel-map-help-panel" hidden>
+          <p class="intel-map-help-title">这张地图在看什么</p>
+          <p id="intel-map-help-self">正在对照当前账号的玩家 ID。</p>
+          <ul>
+            <li>方块底色是土地等级，越亮越高，从 1 到 9。它不是守军难度。</li>
+            <li>要塞、主城和分城画在自己的格子上。蓝色方块是我方，红色方块是敌方。系统要塞没有归属时只画图标。</li>
+            <li>城池按整座范围画一个图标。5×5 的城是一整块图标，不是每格一个。周围格子按占领玩家上色，中心格只认同盟。</li>
+            <li>右上角三角是占领者。绿色是我，蓝色是同一同盟，红色是两边同盟 ID 都对得上、而且不是我方。没有三角表示无主，或者还不知道是谁。未知不会画成敌军。</li>
+            <li>格子中间的白点表示有部队把这里当目标。</li>
+            <li>彩色线是部队路线。颜色同样是我、友、敌，灰色是未知。浅蓝色三角沿路线排开，指向进军方向。</li>
+            <li>缩小后的大色块是一片区域的汇总，不是单格，这时不画单条路线。</li>
+            <li>拖拽平移。鼠标滚轮按光标缩放。触控板双指滑动是平移，捏合是缩放。右下角 + 和 − 一次跳一整档。</li>
+            <li>全图会打开单独的地图页：筛选项在顶部，点地块后详情从弹窗出现。</li>
+          </ul>
+        </div>
         <div class="intel-map-navigation" aria-label="地图导航">
+          <button id="intel-map-help" type="button" aria-expanded="false" aria-controls="intel-map-help-panel" title="这张地图在说什么">?</button>
           <button id="intel-map-back" type="button" aria-label="返回上一视窗" onclick="IntelligenceCenter.goBack()">←</button>
           <button id="intel-map-home" type="button" aria-label="回到推荐视窗" onclick="IntelligenceCenter.goHome()">⌂</button>
           <button id="intel-map-forward" type="button" aria-label="前往下一视窗" onclick="IntelligenceCenter.goForward()">→</button>
           <button type="button" aria-label="缩小地图" onclick="IntelligenceCenter.zoomOut()">−</button>
           <button type="button" aria-label="放大地图" onclick="IntelligenceCenter.zoomIn()">+</button>
+          <button id="intel-map-stage" class="intel-map-stage-toggle" type="button" aria-pressed="false">全图</button>
         </div>
-        <div class="intel-legend" aria-label="土地等级图例">
-          <i style="background:#263746"></i><i style="background:#24536a"></i>
-          <i style="background:#167a78"></i><i style="background:#199f69"></i>
-          <i style="background:#75b83b"></i><i style="background:#d1b52c"></i>
-          <i style="background:#e87e25"></i><i style="background:#ed4936"></i>
-          <i style="background:#ff174f"></i>
+        <div class="intel-legend" aria-label="地图方块说明">
+          <p class="intel-legend-title">方块颜色是土地等级 <small>1 低 → 9 高，不是守军难度</small></p>
+          <div class="intel-legend-scale">
+            <span><i style="background:#263746"></i>1</span>
+            <span><i style="background:#24536a"></i>2</span>
+            <span><i style="background:#167a78"></i>3</span>
+            <span><i style="background:#199f69"></i>4</span>
+            <span><i style="background:#75b83b"></i>5</span>
+            <span><i style="background:#d1b52c"></i>6</span>
+            <span><i style="background:#e87e25"></i>7</span>
+            <span><i style="background:#ed4936"></i>8</span>
+            <span><i style="background:#ff174f"></i>9</span>
+          </div>
+          <div class="intel-legend-marks">
+            <span><i data-mark="self"></i>我方</span>
+            <span><i data-mark="ally"></i>友军</span>
+            <span><i data-mark="enemy"></i>敌军</span>
+            <span><i data-mark="army"></i>有部队</span>
+            <span><i data-mark="path"></i>行军经过</span>
+            <span><i data-mark="high"></i>7 级以上有白框</span>
+            <span><i data-mark="fort-ally"></i>我方要塞</span>
+            <span><i data-mark="fort-enemy"></i>敌方要塞</span>
+            <span><i data-mark="city"></i>城池</span>
+          </div>
         </div>
       </section>
       <aside class="intel-detail intel-detail-panel hud-panel" id="intel-detail-panel">
         <div id="intel-detail-status" class="hud-state-host" aria-live="polite"></div>
         <div class="intel-detail-head">
+          <button id="intel-detail-close" type="button">关闭</button>
           <div class="cc-panel-kicker">SELECTED TILE</div>
           <h3 id="intel-detail-title">未选择地块</h3>
           <span class="intel-risk-pill" id="intel-risk-pill">风险 --</span>
@@ -2271,6 +2303,9 @@ td.num,th.num{font-family:var(--font-mono);}
         </div>
         <div class="intel-detail-body" id="intel-detail-body">
           <div class="intel-empty">点击地图地块查看情报</div>
+        </div>
+        <div class="intel-timeline hud-panel" id="intel-timeline">
+          <div class="intel-empty">暂无 WorldState 变化事件</div>
         </div>
       </aside>
     </div>
@@ -2315,11 +2350,9 @@ td.num,th.num{font-family:var(--font-mono);}
         </tr></thead><tbody id='ws-entity-body'></tbody></table></div>
       </div>
     </section>
-    <div class="intel-timeline hud-panel" id="intel-timeline">
-      <div class="intel-empty">暂无 WorldState 变化事件</div>
-    </div>
   </div>
 </div>
+
 
 <!-- TAB 35: 实时部队三栏指挥台 -->
 <div class='page hud-page' id='tab35' data-visual-domain='intelligence'>
@@ -2411,11 +2444,15 @@ td.num,th.num{font-family:var(--font-mono);}
       <div class="live-army-map-wrap">
         <canvas id="live-army-map-canvas" aria-label="实时部队位置、方向和目标地图"></canvas>
         <div id="live-army-map-status" class="live-army-map-status">等待部队数据</div>
-        <div class="live-army-map-legend" aria-label="部队状态图例">
+        <div class="live-army-map-legend" aria-label="部队路线图例">
+          <span><i data-side="self"></i>我</span>
+          <span><i data-side="ally"></i>友</span>
+          <span><i data-side="enemy"></i>敌</span>
+          <span><i data-side="unknown"></i>未知</span>
+          <span><i data-line="solid"></i>行军路线</span>
           <span><i data-shape="arrow"></i>移动</span>
           <span><i data-shape="shield"></i>驻守 / 增援</span>
-          <span><i data-shape="circle"></i>待命 / 停留</span>
-          <span><i data-shape="diamond"></i>未知 / 离线</span>
+          <span><i data-shape="diamond"></i>状态过期 / 离线</span>
         </div>
       </div>
     </section>
@@ -2555,11 +2592,5 @@ td.num,th.num{font-family:var(--font-mono);}
   aria-relevant="additions text"
 ></section>
 
-<script src="/static/vendor/exceljs-4.4.0.min.js"></script><script src="/static/vendor/jspdf-2.5.1.umd.min.js"></script><script src="/static/vendor/jspdf-autotable-3.8.2.min.js"></script><script type="module" src="/static/dashboard-hud.mjs"></script><script type="module" src="/static/dashboard-runtime.mjs"></script><script type="module" src="/static/intelligence-loader.mjs"></script><script type="module" src="/static/intelligence-map.mjs"></script><script type="module" src="/static/intelligence-map-overview.mjs"></script><script type="module" src="/static/intelligence-map-navigation.mjs"></script><script type="module" src="/static/live-army-command.mjs"></script><script type="module" src="/static/simulator-workbench.js"></script><script type="module" src="/static/research-workbench.mjs"></script><script type="module" src="/static/research-skill-chain.mjs"></script><script type="module" src="/static/research-templates.mjs"></script><script src="/static/dashboard-meta.js"></script><script src="/static/hero_data.js"></script><script src="/static/herocfg.js"></script><script src="/static/app1.js"></script><script src="/static/app2.js"></script><script src="/static/sim.js"></script><script src="/static/world_scene.js"></script><script src="/static/dashboard-design-system.js"></script><script src="/static/dashboard-command-center.js"></script><script src="/static/intelligence-center.js"></script><script type="module" src="/static/intelligence-research.js"></script><script src="/static/intelligence-research-catalog.js"></script><script src="/static/score-center.js"></script>
-<a class='github-banner' href='https://github.com/GRQ02200059/stzb_watcher' target='_blank' title='源码地址，欢迎 Star'>
-  <svg width='15' height='15' viewBox='0 0 16 16' fill='currentColor'><path d='M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z'/></svg>
-  源码开源 · GitHub
-  <span class='gb-star'>★</span>
-  求 Star
-</a>
+<script src="/static/vendor/exceljs-4.4.0.min.js"></script><script src="/static/vendor/jspdf-2.5.1.umd.min.js"></script><script src="/static/vendor/jspdf-autotable-3.8.2.min.js"></script><script type="module" src="/static/dashboard-hud.mjs"></script><script type="module" src="/static/dashboard-runtime.mjs"></script><script type="module" src="/static/intelligence-loader.mjs"></script><script type="module" src="/static/intelligence-map.mjs"></script><script type="module" src="/static/intelligence-map-overview.mjs"></script><script type="module" src="/static/intelligence-map-navigation.mjs"></script><script type="module" src="/static/live-army-command.mjs"></script><script type="module" src="/static/simulator-workbench.js"></script><script type="module" src="/static/research-workbench.mjs"></script><script type="module" src="/static/research-skill-chain.mjs"></script><script type="module" src="/static/research-templates.mjs"></script><script src="/static/dashboard-meta.js"></script><script src="/static/hero_data.js"></script><script src="/static/herocfg.js"></script><script src="/static/app1.js"></script><script src="/static/my-teams.js"></script><script src="/static/app2.js"></script><script src="/static/sim.js"></script><script src="/static/world_scene.js"></script><script src="/static/dashboard-design-system.js"></script><script src="/static/dashboard-command-center.js"></script><script src="/static/intelligence-center.js"></script><script type="module" src="/static/intelligence-research.js"></script><script src="/static/intelligence-research-catalog.js"></script><script src="/static/score-center.js"></script>
 </body></html>

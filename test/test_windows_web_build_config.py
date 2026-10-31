@@ -11,16 +11,19 @@ class WindowsWebBuildConfigTest(unittest.TestCase):
         self.assertIn("SPECPATH", spec)
         self.assertIn("ROOT / \"run_web_exe.py\"", spec)
         self.assertIn("ROOT / \"static\"", spec)
+        self.assertIn("observer-of-stzb.ico", spec)
+        self.assertIn('name="Observer-Of-STZB"', spec)
+        self.assertTrue((ROOT / "packaging/icon/observer-of-stzb.ico").is_file())
 
     def test_powershell_uses_join_path_and_single_file_output(self):
         script = (ROOT / "packaging/scripts/build_web_exe.ps1").read_text(encoding="utf-8")
         self.assertIn("Join-Path", script)
-        self.assertIn("STZB助手-Web.exe", script)
-        self.assertNotIn("distSTZB助手-Web", script)
+        self.assertIn("Observer-Of-STZB.exe", script)
+        self.assertNotIn("distObserver-Of-STZB", script)
 
     def test_workflow_uploads_single_file(self):
         workflow = (ROOT / ".github/workflows/build-windows-web.yml").read_text(encoding="utf-8")
-        self.assertIn("dist/STZB助手-Web.exe", workflow)
+        self.assertIn("dist/Observer-Of-STZB.exe", workflow)
 
 
 if __name__ == "__main__":

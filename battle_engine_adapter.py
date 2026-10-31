@@ -173,6 +173,12 @@ class BattleEngineAdapter:
                         )
                         if int(value) > 0
                     ],
+                    "skillLevels": [
+                        int(value)
+                        for value in hero.get(
+                            "skill_levels", hero.get("skillLevels", [])
+                        )
+                    ],
                     "attributePoints": hero.get("attributePoints")
                     or hero.get("extra_attrs")
                     or {

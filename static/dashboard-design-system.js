@@ -6,6 +6,7 @@
     31: ['兼容态势页', '保留旧版聚合页面兼容能力'],
     0: ['实时战报', '聚合今日战报、活跃玩家与实时事件'],
     1: ['排行中心', '对比玩家、同盟与势力表现'],
+    36: ['我的队伍', '查看自己各城的部队、武将和战法'],
     7: ['玩家队伍', '检索玩家队伍与武将配置'],
     8: ['自定义积分', '查看可配置赛季积分与排名变化'],
     10: ['全部战报', '筛选并追踪最新交战记录'],
@@ -42,11 +43,11 @@
     panel: ['M4 4h16v16H4z', 'M9 4v16', 'M9 10h11']
   };
 
-  const TAB_ICONS = {0: 'pulse', 1: 'rank', 10: 'report', 12: 'map', 14: 'users', 16: 'calendar', 22: 'pulse', 24: 'users', 27: 'monitor', 30: 'globe', 31: 'shield', 32: 'panel', 33: 'map', 34: 'report'};
+  const TAB_ICONS = {0: 'pulse', 1: 'rank', 10: 'report', 12: 'map', 14: 'users', 16: 'calendar', 22: 'pulse', 24: 'users', 27: 'monitor', 30: 'globe', 31: 'shield', 32: 'panel', 33: 'map', 34: 'report', 36: 'users'};
   const NAV_GROUPS = [
     { label: 'INTELLIGENCE', tabs: [33, 35, 26] },
     { label: 'OPERATIONS', tabs: [25, 16] },
-    { label: 'ORGANIZATION', tabs: [7, 17, 24] },
+    { label: 'ORGANIZATION', tabs: [36, 7, 17, 24] },
     { label: 'ANALYSIS', tabs: [8, 23, 34] },
     { label: 'SYSTEM', tabs: [32] }
   ];
@@ -79,15 +80,18 @@
   function addBrand(nav) {
     const brand = document.createElement('div');
     brand.className = 'ds-brand';
-    const mark = document.createElement('span');
+    const mark = document.createElement('img');
     mark.className = 'ds-brand-mark';
-    mark.appendChild(icon('shield'));
+    mark.src = '/static/brand/observer-of-stzb.svg';
+    mark.alt = '';
+    mark.width = 38;
+    mark.height = 38;
     const name = document.createElement('span');
     name.className = 'ds-brand-name';
-    name.textContent = 'STZB Watcher';
+    name.textContent = 'Observer Of STZB';
     const meta = document.createElement('span');
     meta.className = 'ds-brand-meta';
-    meta.textContent = 'BATTLE COMMAND';
+    meta.textContent = 'OBSERVER';
     brand.append(mark, name, meta);
     nav.before(brand);
   }
@@ -150,7 +154,7 @@
     const mobileHead = document.createElement('div');
     mobileHead.className = 'ds-nav-mobile-head';
     const mobileTitle = document.createElement('span');
-    mobileTitle.textContent = 'STZB Watcher';
+    mobileTitle.textContent = 'Observer Of STZB';
     const close = document.createElement('button');
     close.type = 'button';
     close.className = 'ds-nav-close';

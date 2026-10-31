@@ -6,7 +6,9 @@ import api_server
 class LocalAuthRemovedTest(unittest.TestCase):
     def test_index_opens_console_without_login_gate(self):
         html = api_server.app.test_client().get("/").get_data(as_text=True)
-        self.assertIn("率土战场指挥台", html)
+        self.assertIn("Observer Of STZB", html)
+        self.assertIn('href="/favicon.ico"', html)
+        self.assertIn("/static/brand/observer-of-stzb.svg", html)
         self.assertNotIn("local-auth-gate", html)
         self.assertNotIn("local-auth.js", html)
         self.assertNotIn('id="local-auth-form"', html)

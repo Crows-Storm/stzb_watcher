@@ -27,6 +27,15 @@ def decode_resource_level(raw):
     return value // 10, value % 10
 
 
+def _contains_pattern(text: str) -> str:
+    escaped = (
+        text.replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
+    )
+    return f"%{escaped}%"
+
+
 class WorldIntelligenceService:
     def __init__(self, conn: sqlite3.Connection, now_ms=None) -> None:
         self.conn = conn
@@ -114,17 +123,28 @@ class WorldIntelligenceService:
         }
 
     def viewport(self, row_up, row_down, col_left, col_right) -> dict:
-        rows = self.conn.execute(
-            """
-            SELECT * FROM world_tiles
-            WHERE row BETWEEN ? AND ? AND col BETWEEN ? AND ?
-            ORDER BY row,col
-            """,
-            (row_up, row_down, col_left, col_right),
-        ).fetchall()
+        fetched = [
+            dict(row)
+            for row in self.conn.execute(
+                """
+                SELECT * FROM world_tiles
+                WHERE row BETWEEN ? AND ? AND col BETWEEN ? AND ?
+                ORDER BY row,col
+                """,
+                (row_up, row_down, col_left, col_right),
+            ).fetchall()
+        ]
+        owner_unions = self._owner_unions(fetched)
+        tiles = []
+        for row in fetched:
+            tile = self._tile_projection(row)
+            user_id = int(row.get("user_id") or 0)
+            union_id = int(row.get("union_id") or 0)
+            tile["ownerUnionId"] = union_id or owner_unions.get(user_id, 0)
+            tiles.append(tile)
         return {
             **self.envelope(),
-            "tiles": [self._tile_projection(dict(row)) for row in rows],
+            "tiles": tiles,
         }
 
     def overview(
@@ -406,6 +426,84 @@ class WorldIntelligenceService:
             key=lambda item: (-item["score"], item["wid"]),
         )
 
+    def search_players(self, name: str, limit=20) -> dict:
+        query = " ".join(str(name or "").split())
+        if not query:
+            raise ValueError("name is required")
+        if len(query) > 40:
+            raise ValueError("name is too long")
+        row_limit = min(50, max(1, int(limit)))
+        pattern = _contains_pattern(query)
+        rows = self.conn.execute(
+            """
+            SELECT
+                t.wid, t.row, t.col, t.user_id, t.name AS tile_name,
+                u.name AS user_name, u.union_name
+            FROM world_tiles t
+            LEFT JOIN world_map_users u ON u.user_id = t.user_id
+            WHERE t.city_type = 1
+              AND (
+                t.name LIKE ? ESCAPE '\\'
+                OR IFNULL(u.name, '') LIKE ? ESCAPE '\\'
+              )
+            ORDER BY
+              CASE WHEN t.name = ? OR u.name = ? THEN 0 ELSE 1 END,
+              LENGTH(COALESCE(NULLIF(u.name, ''), t.name)),
+              t.wid
+            LIMIT ?
+            """,
+            (pattern, pattern, query, query, row_limit),
+        ).fetchall()
+        players = []
+        for row in rows:
+            players.append(
+                {
+                    "userId": int(row["user_id"] or 0),
+                    "name": row["user_name"] or row["tile_name"] or "",
+                    "unionName": row["union_name"] or "",
+                    "wid": int(row["wid"]),
+                    "row": int(row["row"]),
+                    "col": int(row["col"]),
+                }
+            )
+        return {"players": players}
+
+    def search_high_land(self, min_level=7, limit=80) -> dict:
+        minimum = int(min_level)
+        if minimum < 1 or minimum > 9:
+            raise ValueError("minLevel must be from 1 to 9")
+        row_limit = min(200, max(1, int(limit)))
+        rows = self.conn.execute(
+            """
+            SELECT c.wid, c.raw_json, t.name
+            FROM world_tile_chunks c
+            LEFT JOIN world_tiles t ON t.wid = c.wid
+            WHERE c.chunk_type = '8'
+            """
+        ).fetchall()
+        lands = []
+        for row in rows:
+            try:
+                raw = json.loads(row["raw_json"])
+            except (TypeError, json.JSONDecodeError):
+                raw = row["raw_json"]
+            level, resource = decode_resource_level(raw)
+            if level is None or level < minimum:
+                continue
+            wid = int(row["wid"])
+            lands.append(
+                {
+                    "wid": wid,
+                    "row": wid // 10000,
+                    "col": wid % 10000,
+                    "landLevel": level,
+                    "resourceKind": resource,
+                    "name": row["name"] or "",
+                }
+            )
+        lands.sort(key=lambda item: (-item["landLevel"], item["row"], item["col"]))
+        return {"lands": lands[:row_limit], "total": len(lands)}
+
     def events(self, since_version=0, event_type=None, entity_id=None, limit=100):
         where = ["state_version>?"]
         args = [int(since_version)]
@@ -431,6 +529,27 @@ class WorldIntelligenceService:
             item["diff"] = json.loads(item.pop("diff_json") or "{}")
             result.append(item)
         return result
+
+    def _owner_unions(self, rows):
+        user_ids = sorted({
+            int(row.get("user_id") or 0)
+            for row in rows
+            if int(row.get("user_id") or 0) and not int(row.get("union_id") or 0)
+        })
+        if not user_ids:
+            return {}
+        placeholders = ",".join("?" for _ in user_ids)
+        found = self.conn.execute(
+            f"""
+            SELECT user_id, union_id FROM world_map_users
+            WHERE user_id IN ({placeholders})
+            """,
+            user_ids,
+        ).fetchall()
+        return {
+            int(row["user_id"]): int(row["union_id"] or 0)
+            for row in found
+        }
 
     def _tile_projection(self, row):
         chunk = self.conn.execute(
@@ -493,13 +612,15 @@ class WorldIntelligenceService:
             "attackWinRate": 0.0,
             "recentBattles": [],
             "commonLineups": [],
+            "neighborBattles": [],
         }
         if not _table_exists(self.conn, "battles_v2"):
             return empty
+        selected = _battle_report_columns(self.conn)
         try:
             rows = self.conn.execute(
-                """
-                SELECT battle_id,time,result,atk_name,def_name
+                f"""
+                SELECT {",".join(selected)}
                 FROM battles_v2 WHERE wid=?
                 ORDER BY time DESC,battle_id DESC
                 """,
@@ -561,7 +682,51 @@ class WorldIntelligenceService:
             ),
             "recentBattles": [dict(row) for row in rows[:10]],
             "commonLineups": common_lineups,
+            "neighborBattles": (
+                [] if sample_size else self._neighbor_battle_groups(wid)
+            ),
         }
+
+    def _neighbor_battle_groups(self, wid):
+        groups = []
+        adjacent = _adjacent_wids(wid)
+        if not adjacent:
+            return groups
+        placeholders = ",".join("?" * len(adjacent))
+        try:
+            counts = self.conn.execute(
+                f"""
+                SELECT wid, COUNT(*) AS sample_size
+                FROM battles_v2
+                WHERE wid IN ({placeholders})
+                GROUP BY wid
+                ORDER BY sample_size DESC, wid
+                """,
+                adjacent,
+            ).fetchall()
+        except sqlite3.OperationalError:
+            return groups
+        for count in counts[:4]:
+            sample_size = int(count["sample_size"] or 0)
+            neighbor = int(count["wid"])
+            if sample_size <= 0:
+                continue
+            selected = _battle_report_columns(self.conn)
+            recent = self.conn.execute(
+                f"""
+                SELECT {",".join(selected)}
+                FROM battles_v2 WHERE wid=?
+                ORDER BY time DESC,battle_id DESC
+                LIMIT 8
+                """,
+                (neighbor,),
+            ).fetchall()
+            groups.append({
+                "wid": neighbor,
+                "sampleSize": sample_size,
+                "recentBattles": [dict(row) for row in recent],
+            })
+        return groups
 
     def _current_identity(self):
         if not _table_exists(self.conn, "player_self"):
@@ -644,20 +809,54 @@ class WorldIntelligenceService:
         return None
 
     def _ownership_relation(self, user_id, union_id, identity):
+        user_id = int(user_id or 0)
+        owner = self._map_user(user_id)
+        resolved_union = int(union_id or 0) or int(owner.get("union_id") or 0)
+        union_name = str(owner.get("union_name") or "")
+        if resolved_union and not union_name:
+            union_name = self._union_name(resolved_union)
         if user_id <= 0:
-            return {
-                "relation": "unowned",
-                "ownerUserId": 0,
-                "ownerUnionId": int(union_id or 0),
-                "identitySource": identity["source"] if identity else "",
-            }
-        relation = self._relation(user_id, union_id, identity)
+            relation = "unowned"
+            owner_user = 0
+        else:
+            relation = self._relation(user_id, resolved_union, identity)
+            owner_user = user_id
         return {
             "relation": relation,
-            "ownerUserId": int(user_id),
-            "ownerUnionId": int(union_id or 0),
+            "ownerUserId": owner_user,
+            "ownerUnionId": resolved_union,
+            "ownerName": str(owner.get("name") or ""),
+            "ownerUnionName": union_name,
             "identitySource": identity["source"] if identity else "",
         }
+
+    def _map_user(self, user_id):
+        if int(user_id or 0) <= 0 or not _table_exists(self.conn, "world_map_users"):
+            return {}
+        row = self.conn.execute(
+            """
+            SELECT name, union_id, union_name
+            FROM world_map_users
+            WHERE user_id=?
+            """,
+            (int(user_id),),
+        ).fetchone()
+        if row is None:
+            return {}
+        return {
+            "name": str(row["name"] or ""),
+            "union_id": int(row["union_id"] or 0),
+            "union_name": str(row["union_name"] or ""),
+        }
+
+    def _union_name(self, union_id):
+        if int(union_id or 0) <= 0 or not _table_exists(self.conn, "world_unions"):
+            return ""
+        row = self.conn.execute(
+            "SELECT name FROM world_unions WHERE union_id=?",
+            (int(union_id),),
+        ).fetchone()
+        return str(row["name"] or "") if row else ""
 
     def _user_relation(self, user_id, identity):
         if user_id <= 0 or identity is None:
@@ -691,6 +890,33 @@ def _version_row(row):
     if "coverage_json" in item:
         item["coverage"] = json.loads(item.pop("coverage_json") or "null")
     return item
+
+
+def _battle_report_columns(conn):
+    present = {
+        row["name"]
+        for row in conn.execute("PRAGMA table_info(battles_v2)").fetchall()
+    }
+    columns = ["battle_id", "time", "result", "atk_name", "def_name"]
+    for extra in ("time_str", "wid_name", "result_desc"):
+        if extra in present:
+            columns.append(extra)
+    return columns
+
+
+def _adjacent_wids(wid):
+    row, col = divmod(int(wid), 10000)
+    found = []
+    for row_offset in (-1, 0, 1):
+        for col_offset in (-1, 0, 1):
+            if row_offset == 0 and col_offset == 0:
+                continue
+            next_row = row + row_offset
+            next_col = col + col_offset
+            if next_row < 0 or not 0 <= next_col <= 9999:
+                continue
+            found.append(next_row * 10000 + next_col)
+    return found
 
 
 def _table_exists(conn, name):

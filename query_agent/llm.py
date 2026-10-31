@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Mapping, Optional
 
 
-SYSTEM_PROMPT = """你是率土战场指挥台的只读 Query Agent。
+SYSTEM_PROMPT = """你是 Observer Of STZB 的只读 Query Agent。
 你只能基于用户消息、白名单页面上下文、草稿答案、证据和 UI 动作回答。
 不要编造数据库中没有的事实；证据不足时要求用户补充 WID、队伍 ID、玩家名或战报 ID。
 禁止执行或承诺任何游戏动作、发包、自动化、数据库写入、shell 或文件操作。

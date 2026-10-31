@@ -5,6 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VISIBLE_LABELS = [
+    "我的队伍",
     "玩家队伍",
     "自定义积分",
     "打城考勤",

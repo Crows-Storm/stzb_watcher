@@ -35,6 +35,7 @@ if (typeof module !== 'undefined' && module.exports) {
     radarBuckets: [],
     risks: new Map(),
     selectedWid: 0,
+    stageDetailOpen: false,
     detail: null,
     events: [],
     render: null,
@@ -57,7 +58,9 @@ if (typeof module !== 'undefined' && module.exports) {
     sceneRows: {march: null, army: null, entity: null},
     sceneCompatibility: {march: null, army: null, entity: null},
     favorites: new Set(readFavorites()),
-    layers: {ownership: true, freshness: true, paths: true, armies: true}
+    layers: {ownership: true, freshness: true, paths: true, armies: true},
+    viewer: null,
+    liveArmies: []
   };
   let aggregateLoader = null;
   let detailOwner = null;
@@ -225,6 +228,10 @@ if (typeof module !== 'undefined' && module.exports) {
       ? loadNearViewport(navigation.bounds, signal)
       : loadOverviewBuckets(navigation.bounds, signal);
     const radarPromise = loadRadarBuckets(summary.dataBounds, signal);
+    const livePromise = fetchJson(
+      '/api/intelligence/live-armies?offlineMinutes=10',
+      signal,
+    ).then(response => response?.ok ? response : null).catch(() => null);
     const aggregateDetailOwner = navigation.selectedWid
       ? beginDetailRequest('aggregate', abort)
       : null;
@@ -235,11 +242,12 @@ if (typeof module !== 'undefined' && module.exports) {
       ).then(response => requireResponse(response, '地块详情加载失败'))
       : Promise.resolve(null);
     try {
-      const [main, radar, events, detail] = await Promise.all([
+      const [main, radar, events, detail, live] = await Promise.all([
         mainPromise,
         radarPromise,
         eventsPromise,
         detailPromise,
+        livePromise,
       ]);
       assertAggregateVersions(summary, [
         ...(main.versionedResponses || []),
@@ -260,6 +268,11 @@ if (typeof module !== 'undefined' && module.exports) {
         radarBuckets: radar.buckets,
         events: events?.events || [],
         detail,
+        viewer: live?.viewer || null,
+        liveArmies: [
+          ...(live?.current || []),
+          ...(live?.recentOffline || []),
+        ],
       };
     } finally {
       finishDetailRequest(aggregateDetailOwner);
@@ -291,7 +304,10 @@ if (typeof module !== 'undefined' && module.exports) {
       return {
         ...tile,
         relation: risk?.ownership?.relation || 'unknown',
-        armies: risk?.incomingArmyRelations?.enemy || 0
+        armies: ['enemy', 'ally', 'self', 'unknown'].reduce(
+          (total, key) => total + Number(risk?.incomingArmyRelations?.[key] || 0),
+          0,
+        )
       };
     });
     return {
@@ -408,7 +424,10 @@ if (typeof module !== 'undefined' && module.exports) {
     state.buckets = result.buckets || [];
     state.radarBuckets = result.radarBuckets || [];
     state.risks = result.risks || new Map();
+    state.viewer = result.viewer || null;
+    state.liveArmies = result.liveArmies || [];
     state.detail = result.detail?.ok ? result.detail : null;
+    updateMapHelp();
     renderMainMap();
     renderRadar();
     renderTimeline();
@@ -475,6 +494,11 @@ if (typeof module !== 'undefined' && module.exports) {
       const selected = state.selectedWid;
       const tiles = state.tiles.map(tile => ({
         ...tile,
+        relation: window.IntelligenceMap.relationFor?.(
+          tile.user_id,
+          tile.union_id,
+          state.viewer,
+        ) || tile.relation || 'unknown',
         selected: Number(tile.wid) === selected,
         favorite: state.favorites.has(Number(tile.wid)),
         risk: state.risks.get(Number(tile.wid))
@@ -482,7 +506,17 @@ if (typeof module !== 'undefined' && module.exports) {
       state.render = window.IntelligenceMap.drawIntelligenceMap(
         canvas,
         tiles,
-        {bounds: state.bounds, layers: state.layers}
+        {
+          bounds: state.bounds,
+          layers: state.layers,
+          viewer: state.viewer,
+          routes: state.mode === 'near'
+            ? window.IntelligenceMap.routesFromArmies?.(
+              state.liveArmies,
+              state.viewer,
+            ) || []
+            : []
+        }
       );
     } else {
       state.render = window.IntelligenceMapOverview.drawOverviewMap(
@@ -519,7 +553,10 @@ if (typeof module !== 'undefined' && module.exports) {
       ? view
       : 'map';
     aggregateLoader?.invalidate();
-    if (normalized !== 'map') invalidateDetailRequest();
+    if (normalized !== 'map') {
+      invalidateDetailRequest();
+      setMapStage(false);
+    }
     state.activeView = normalized;
     document.querySelectorAll('[data-intel-view]').forEach(button => {
       const active = button.dataset.intelView === normalized;
@@ -541,6 +578,26 @@ if (typeof module !== 'undefined' && module.exports) {
     renderRadar();
   }
 
+  let battleRefreshToken = 0;
+
+  async function refreshBattleStats() {
+    const wid = Number(state.selectedWid);
+    const token = ++battleRefreshToken;
+    renderDetail('battles');
+    if (!wid) return;
+    try {
+      const data = await fetchJson(`/api/intelligence/world/tile/${wid}`);
+      if (token !== battleRefreshToken || Number(state.selectedWid) !== wid) return;
+      if (!data?.ok) return;
+      state.detail = data;
+      renderDetail('battles');
+      renderDetailLoadState('success');
+    } catch (error) {
+      if (token !== battleRefreshToken) return;
+      renderDetailLoadState('error', error?.message || '战报加载失败', false);
+    }
+  }
+
   async function selectWid(wid, rerender = true) {
     const requestedWid = Number(wid) || 0;
     aggregateLoader?.invalidate();
@@ -552,6 +609,8 @@ if (typeof module !== 'undefined' && module.exports) {
       () => controller.abort(),
     );
     state.selectedWid = requestedWid;
+    state.stageDetailOpen = requestedWid > 0;
+    syncStageDetail();
     if (rerender) {
       renderMainMap();
       renderRadar();
@@ -717,7 +776,7 @@ if (typeof module !== 'undefined' && module.exports) {
       body.innerHTML = card(
         '风险解释',
         Object.entries(risk.components || {}).map(([key, value]) => row(key, value)).join('')
-        + row('归属关系', risk.ownership?.relation || 'unknown')
+        + ownershipRows(risk.ownership, state.viewer)
         + row('置信度', `${Math.round((risk.confidence || 0) * 100)}%`)
         + row('未知分量', (risk.unknownComponents || []).join(', ') || '无')
       ) + card(
@@ -759,11 +818,41 @@ if (typeof module !== 'undefined' && module.exports) {
     if (pill) pill.textContent = '风险 --';
   }
 
+  function battleResultLabel(result) {
+    const value = Number(result);
+    if (value === 1 || value === 7 || value === 11) return '攻胜';
+    if (value === 2 || value === 6 || value === 12) return '守胜';
+    return '平';
+  }
+
+  function renderBattleRow(item) {
+    const battleId = Number(item.battle_id);
+    const place = item.wid_name ? ` · ${item.wid_name}` : '';
+    const outcome = item.result_desc || battleResultLabel(item.result);
+    return `<button class="intel-battle-row" type="button" data-intel-action="open-battle" data-battle-id="${battleId}">
+      <b>${esc(fmtTime(item.time))}${esc(place)}</b>
+      <span>${esc(item.atk_name || '-')} ${esc(outcome)} ${esc(item.def_name || '-')}</span>
+    </button>`;
+  }
+
   function renderBattleStats(body, stats) {
     const recent = stats.recentBattles || [];
+    const neighbors = stats.neighborBattles || [];
     const lineups = stats.commonLineups || [];
+    const selectedWid = Number(state.selectedWid || state.detail?.tile?.wid || 0);
+    const neighborHtml = neighbors.map(group => (
+      `<div class="intel-row"><span>相邻 WID ${esc(group.wid)}</span><b>${group.sampleSize || 0} 场</b></div>`
+      + (group.recentBattles || []).map(renderBattleRow).join('')
+      + `<button class="btn" type="button" data-intel-action="open-battles" data-wid="${Number(group.wid)}">查看 WID ${esc(group.wid)} 全部战报</button>`
+    )).join('');
     body.innerHTML =
       '<div class="research-section-title"><div><span class="evidence-badge evidence-stat">BATTLE STAT</span><h3>地块历史战报</h3></div></div>'
+      + card(
+        '最近战报',
+        recent.length
+          ? recent.map(renderBattleRow).join('')
+          : (neighborHtml || '<div class="intel-empty">这块地没有采集到战报</div>')
+      )
       + card(
         '历史样本',
         row('总样本', stats.sampleSize || 0)
@@ -776,13 +865,7 @@ if (typeof module !== 'undefined' && module.exports) {
           ? lineups.map((item, index) => `<button class="intel-lineup-link" type="button" data-intel-action="open-lineup" data-lineup-index="${index}"><b>${esc((item.names || []).join(' / ') || item.key)}</b><small>${item.sampleSize} 场</small></button>`).join('')
           : '<div class="intel-empty">暂无完整三人阵容</div>'
       )
-      + card(
-        '最近战报',
-        recent.length
-          ? recent.map(item => `<div class="intel-battle-row"><b>#${item.battle_id}</b><span>${esc(item.atk_name || '-')} → ${esc(item.def_name || '-')}</span></div>`).join('')
-          : '<div class="intel-empty">暂无战报</div>'
-      )
-      + '<button class="btn" type="button" data-intel-action="open-battles">筛选该 WID 全部战报</button>';
+      + `<button class="btn" type="button" data-intel-action="open-battles" data-wid="${selectedWid}">筛选该 WID 全部战报</button>`;
   }
 
   function focusBucket(bucket) {
@@ -886,6 +969,88 @@ if (typeof module !== 'undefined' && module.exports) {
       direction
     );
     commitNavigation(true);
+  }
+
+  async function searchPlayers() {
+    const input = document.getElementById('intel-player-input');
+    const name = input?.value.trim() || '';
+    if (!name) {
+      showState('请输入玩家名', true);
+      return;
+    }
+    try {
+      const data = await fetchJson(
+        `/api/intelligence/world/search/players?name=${encodeURIComponent(name)}`,
+      );
+      const players = data.players || [];
+      renderSearchResults(
+        players.length ? `主城 ${players.length} 座` : '没有收录到这位玩家的主城',
+        players.map(player => ({
+          wid: player.wid,
+          title: player.name || '未命名',
+          detail: [
+            '主城',
+            `${player.row},${player.col}`,
+            `WID ${player.wid}`,
+            player.unionName,
+          ].filter(Boolean).join(' · '),
+        })),
+      );
+      showState(
+        players.length
+          ? `找到 ${players.length} 座主城，点击结果定位`
+          : `「${name}」没有已收录的主城坐标`,
+        !players.length,
+      );
+    } catch (error) {
+      showState(`玩家检索失败：${error.message}`, true);
+    }
+  }
+
+  async function searchHighLand() {
+    try {
+      const data = await fetchJson('/api/intelligence/world/search/land?minLevel=7');
+      const lands = data.lands || [];
+      const total = Number(data.total || lands.length);
+      renderSearchResults(
+        total ? `七级及以上 ${total} 块${total > lands.length ? `，显示前 ${lands.length} 块` : ''}` : '已收录的土地里没有七级及以上',
+        lands.map(land => ({
+          wid: land.wid,
+          title: `Lv.${land.landLevel}${land.name ? ` · ${land.name}` : ''}`,
+          detail: `${land.row},${land.col} · WID ${land.wid}`,
+        })),
+      );
+      showState(
+        total
+          ? `七级及以上 ${total} 块，点击结果定位`
+          : '已收录的土地里没有七级及以上',
+        !total,
+      );
+    } catch (error) {
+      showState(`土地检索失败：${error.message}`, true);
+    }
+  }
+
+  function renderSearchResults(title, items) {
+    const host = document.getElementById('intel-search-results');
+    if (!host) return;
+    const hits = items.map(item => `
+      <button class="intel-search-hit" type="button" data-search-wid="${Number(item.wid)}">
+        <b>${esc(item.title)}</b>
+        <small>${esc(item.detail)}</small>
+      </button>
+    `).join('');
+    host.hidden = false;
+    host.innerHTML = `<p>${esc(title)}</p>${hits}`;
+  }
+
+  async function openSearchHit(wid) {
+    const located = await locateWid(wid);
+    if (located) return;
+    const row = Math.floor(Number(wid) / 10000);
+    const col = Number(wid) % 10000;
+    navigateTo(centeredBounds(row, col, 20), Number(wid), true);
+    showState(`已把镜头移到 ${row},${col}`);
   }
 
   async function locateWid(value) {
@@ -1002,6 +1167,105 @@ if (typeof module !== 'undefined' && module.exports) {
     });
   }
 
+  function updateMapHelp() {
+    const line = document.getElementById('intel-map-help-self');
+    if (!line) return;
+    const viewer = state.viewer;
+    const userId = Number(viewer?.userId) || 0;
+    const unionId = Number(viewer?.unionId) || 0;
+    if (userId) {
+      line.textContent = unionId
+        ? `当前账号玩家 ID ${userId}，同盟 ID ${unionId}。玩家 ID 相同是我，同盟 ID 相同是友。`
+        : `当前账号玩家 ID ${userId}。玩家 ID 相同是我；还没有同盟 ID 时，其他人先标成未知。`;
+      return;
+    }
+    line.textContent = '还没有对上当前账号的玩家 ID，路线先标成未知，不会画成敌军。';
+  }
+
+  function bindMapHelp() {
+    const button = document.getElementById('intel-map-help');
+    const panel = document.getElementById('intel-map-help-panel');
+    if (!button || !panel || button.dataset.bound === '1') return;
+    button.dataset.bound = '1';
+    button.addEventListener('click', () => {
+      const willOpen = panel.hasAttribute('hidden');
+      panel.toggleAttribute('hidden', !willOpen);
+      button.setAttribute('aria-expanded', String(willOpen));
+    });
+  }
+
+  function bindGentleWheel(canvas, {onPan, onZoom}) {
+    let queued = null;
+    let gestureScale = 1;
+    let pinchWheelAt = 0;
+    const queue = (action, clientX, clientY) => {
+      if (!queued) {
+        queued = {
+          panX: 0,
+          panY: 0,
+          zoom: 0,
+          source: action.source,
+          clientX: 0,
+          clientY: 0,
+          zooming: false,
+        };
+        requestAnimationFrame(() => {
+          const frame = queued;
+          queued = null;
+          if (!frame) return;
+          frame.panX = Math.max(-72, Math.min(72, frame.panX));
+          frame.panY = Math.max(-72, Math.min(72, frame.panY));
+          frame.zoom = Math.max(-160, Math.min(160, frame.zoom));
+          if (frame.zooming && frame.zoom) onZoom(frame);
+          else if (frame.panX || frame.panY) {
+            onPan({x: frame.panX, y: frame.panY, clientX: frame.clientX, clientY: frame.clientY});
+          }
+        });
+      }
+      queued.clientX = clientX;
+      queued.clientY = clientY;
+      if (action.type === 'zoom') {
+        queued.zooming = true;
+        queued.source = action.source;
+        queued.zoom += action.zoom;
+      } else {
+        queued.panX += action.dx;
+        queued.panY += action.dy;
+      }
+    };
+    canvas.addEventListener('wheel', event => {
+      event.preventDefault();
+      const action = window.IntelligenceMap.wheelAction?.(event) || {
+        type: event.ctrlKey || event.metaKey ? 'zoom' : 'pan',
+        source: event.ctrlKey || event.metaKey ? 'pinch' : 'trackpad',
+        dx: Number(event.deltaX) || 0,
+        dy: Number(event.deltaY) || 0,
+        zoom: Number(event.deltaY) || 0,
+      };
+      if (action.source === 'pinch') pinchWheelAt = Date.now();
+      queue(action, Number(event.clientX) || 0, Number(event.clientY) || 0);
+    }, {passive: false});
+    canvas.addEventListener('gesturestart', event => {
+      gestureScale = Number(event.scale) || 1;
+      event.preventDefault();
+    }, {passive: false});
+    canvas.addEventListener('gesturechange', event => {
+      event.preventDefault();
+      if (Date.now() - pinchWheelAt < 80) return;
+      const scale = Number(event.scale) || gestureScale;
+      const ratio = gestureScale > 0 ? scale / gestureScale : 1;
+      gestureScale = scale;
+      if (!Number.isFinite(ratio) || Math.abs(ratio - 1) < 0.002) return;
+      queue({
+        type: 'zoom',
+        source: 'pinch',
+        dx: 0,
+        dy: 0,
+        zoom: Math.log(ratio) / 0.0032,
+      }, Number(event.clientX) || 0, Number(event.clientY) || 0);
+    }, {passive: false});
+  }
+
   function bindMainCanvas(canvas) {
     canvas.addEventListener('click', event => {
       if (state.suppressMapClick) {
@@ -1012,7 +1276,10 @@ if (typeof module !== 'undefined' && module.exports) {
       const point = canvasPoint(canvas, event);
       if (state.mode === 'near') {
         const wid = window.IntelligenceMap.hitTestMap(point.x, point.y, state.render);
-        if (!wid) return;
+        if (!wid) {
+          closeStageDetail();
+          return;
+        }
         if (event.shiftKey) toggleFavorite(wid);
         else selectWid(wid);
       } else {
@@ -1033,22 +1300,46 @@ if (typeof module !== 'undefined' && module.exports) {
         state.render
       ));
     });
-    canvas.addEventListener('wheel', event => {
-      event.preventDefault();
-      const point = canvasPoint(canvas, event);
-      const rows = state.bounds.rowDown - state.bounds.rowUp + 1;
-      const cols = state.bounds.colRight - state.bounds.colLeft + 1;
-      const row = state.bounds.rowUp + (point.y / canvas.clientHeight) * rows;
-      const col = state.bounds.colLeft + (point.x / canvas.clientWidth) * cols;
-      state.bounds = window.IntelligenceMap.zoomBounds(
-        state.bounds,
-        row,
-        col,
-        event.deltaY
-      );
-      scheduleRender();
-      scheduleReload(true);
-    }, {passive: false});
+    bindGentleWheel(canvas, {
+      onPan(frame) {
+        const shift = panPixels(canvas, state.bounds, frame.x, frame.y, 0.55);
+        state.bounds = window.IntelligenceMap.panBounds(
+          state.bounds,
+          shift.rowDelta,
+          shift.colDelta
+        );
+        scheduleRender();
+        scheduleReload(true);
+      },
+      onZoom(frame) {
+        const point = worldPoint(canvas, canvasPoint(canvas, frame));
+        const factor = window.IntelligenceMap.wheelZoomFactor?.(frame.zoom, frame.source)
+          ?? (Number(frame.zoom) < 0 ? 0.8 : 1.25);
+        state.zoomPending = (Number(state.zoomPending) || 1) * factor;
+        const next = window.IntelligenceMap.zoomBounds(
+          state.bounds,
+          point.row,
+          point.col,
+          state.zoomPending,
+          'anchor'
+        );
+        const unchanged = next.rowUp === state.bounds.rowUp
+          && next.rowDown === state.bounds.rowDown
+          && next.colLeft === state.bounds.colLeft
+          && next.colRight === state.bounds.colRight;
+        if (unchanged) {
+          const span = state.bounds.rowDown - state.bounds.rowUp + 1;
+          if ((span <= 5 && state.zoomPending < 1) || (span >= 160 && state.zoomPending > 1)) {
+            state.zoomPending = 1;
+          }
+          return;
+        }
+        state.zoomPending = 1;
+        state.bounds = next;
+        scheduleRender();
+        scheduleReload(true);
+      }
+    });
     canvas.addEventListener('pointerdown', event => {
       state.drag = {
         x: event.clientX,
@@ -1060,18 +1351,17 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     canvas.addEventListener('pointermove', event => {
       if (!state.drag) return;
-      const rows = state.drag.bounds.rowDown - state.drag.bounds.rowUp + 1;
-      const cols = state.drag.bounds.colRight - state.drag.bounds.colLeft + 1;
       const dx = event.clientX - state.drag.x;
       const dy = event.clientY - state.drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 5 && !state.drag.moved) {
         state.drag.moved = true;
         aggregateLoader?.invalidate();
       }
+      const shift = panPixels(canvas, state.drag.bounds, -dx, -dy, 1);
       state.bounds = window.IntelligenceMap.panBounds(
         state.drag.bounds,
-        -(dy / canvas.clientHeight) * rows,
-        -(dx / canvas.clientWidth) * cols
+        shift.rowDelta,
+        shift.colDelta
       );
       scheduleRender();
     });
@@ -1158,6 +1448,8 @@ if (typeof module !== 'undefined' && module.exports) {
     }
     bindMainCanvas(canvas);
     bindRadar(radar);
+    bindMapHelp();
+    bindMapStage();
     document.querySelectorAll('[data-intel-view]').forEach(button => {
       button.addEventListener('click', () => openView(button.dataset.intelView));
       button.addEventListener('keydown', event => {
@@ -1184,7 +1476,11 @@ if (typeof module !== 'undefined' && module.exports) {
       });
     });
     document.querySelectorAll('.intel-detail-tabs button').forEach(button => {
-      button.addEventListener('click', () => renderDetail(button.dataset.intelTab));
+      button.addEventListener('click', () => {
+        const tab = button.dataset.intelTab;
+        if (tab === 'battles') refreshBattleStats();
+        else renderDetail(tab);
+      });
     });
     document.getElementById('intel-detail-body')?.addEventListener('click', event => {
       const button = event.target.closest('[data-intel-action]');
@@ -1192,7 +1488,11 @@ if (typeof module !== 'undefined' && module.exports) {
       if (button.dataset.intelAction === 'toggle-favorite') {
         toggleFavorite(state.detail?.tile?.wid);
       } else if (button.dataset.intelAction === 'open-battles') {
-        openBattles();
+        const wid = Number(button.dataset.wid);
+        openBattles(Number.isSafeInteger(wid) && wid > 0 ? wid : state.selectedWid);
+      } else if (button.dataset.intelAction === 'open-battle') {
+        const battleId = Number(button.dataset.battleId);
+        if (battleId && typeof showBattleDetail === 'function') showBattleDetail(battleId);
       } else if (button.dataset.intelAction === 'open-lineup') {
         const index = Number(button.dataset.lineupIndex);
         const lineups = state.detail?.battleStats?.commonLineups || [];
@@ -1207,6 +1507,20 @@ if (typeof module !== 'undefined' && module.exports) {
     });
     document.getElementById('intel-wid-input')?.addEventListener('keydown', event => {
       if (event.key === 'Enter') locateWid();
+    });
+    document.getElementById('intel-player-search')?.addEventListener('click', () => {
+      searchPlayers();
+    });
+    document.getElementById('intel-player-input')?.addEventListener('keydown', event => {
+      if (event.key === 'Enter') searchPlayers();
+    });
+    document.getElementById('intel-land-search')?.addEventListener('click', () => {
+      searchHighLand();
+    });
+    document.getElementById('intel-search-results')?.addEventListener('click', event => {
+      const hit = event.target.closest('[data-search-wid]');
+      const wid = Number(hit?.dataset.searchWid);
+      if (wid) openSearchHit(wid);
     });
     document.getElementById('intel-radar-toggle')?.addEventListener('click', () => {
       document.getElementById('intel-radar')?.classList.toggle('is-collapsed');
@@ -1311,10 +1625,165 @@ if (typeof module !== 'undefined' && module.exports) {
     return {x: event.clientX - rect.left, y: event.clientY - rect.top};
   }
 
+  function worldPoint(canvas, point) {
+    const size = state.mode === 'near' ? Number(state.render?.size) || 0 : 0;
+    if (size > 0) {
+      return {
+        row: state.bounds.rowUp + (point.y - (Number(state.render.originY) || 0)) / size,
+        col: state.bounds.colLeft + (point.x - (Number(state.render.originX) || 0)) / size
+      };
+    }
+    const rows = state.bounds.rowDown - state.bounds.rowUp + 1;
+    const cols = state.bounds.colRight - state.bounds.colLeft + 1;
+    return {
+      row: state.bounds.rowUp + (point.y / Math.max(1, canvas.clientHeight)) * rows,
+      col: state.bounds.colLeft + (point.x / Math.max(1, canvas.clientWidth)) * cols
+    };
+  }
+
+  function panPixels(canvas, bounds, dx, dy, scale) {
+    const size = state.mode === 'near' ? Number(state.render?.size) || 0 : 0;
+    const factor = Number(scale) || 1;
+    if (size > 0) {
+      return {rowDelta: dy / size * factor, colDelta: dx / size * factor};
+    }
+    const rows = bounds.rowDown - bounds.rowUp + 1;
+    const cols = bounds.colRight - bounds.colLeft + 1;
+    return {
+      rowDelta: (dy / Math.max(1, canvas.clientHeight)) * rows * factor,
+      colDelta: (dx / Math.max(1, canvas.clientWidth)) * cols * factor
+    };
+  }
+
+  function syncStageDetail() {
+    const view = document.getElementById('intel-view-map');
+    if (!view) return;
+    const open = view.classList.contains('is-map-stage')
+      && state.stageDetailOpen
+      && Number(state.selectedWid) > 0;
+    view.classList.toggle('is-detail-open', open);
+  }
+
+  function closeStageDetail() {
+    if (!document.getElementById('intel-view-map')?.classList.contains('is-map-stage')) return;
+    state.stageDetailOpen = false;
+    syncStageDetail();
+  }
+
+  function setMapStage(open) {
+    const view = document.getElementById('intel-view-map');
+    const next = Boolean(open);
+    document.body.classList.toggle('intel-map-stage', next);
+    view?.classList.toggle('is-map-stage', next);
+    const button = document.getElementById('intel-map-stage');
+    if (button) {
+      button.textContent = next ? '返回' : '全图';
+      button.setAttribute('aria-pressed', String(next));
+      button.setAttribute('aria-label', next ? '返回指挥台' : '打开全图');
+    }
+    if (!next) {
+      view?.classList.remove('is-detail-open');
+      const detail = document.getElementById('intel-detail-panel');
+      if (detail) {
+        detail.style.top = '';
+        detail.style.maxHeight = '';
+      }
+    } else {
+      syncStageDetail();
+    }
+    requestAnimationFrame(() => {
+      renderMainMap();
+      renderRadar();
+      placeStageDetail();
+    });
+  }
+
+  function placeStageDetail() {
+    const view = document.getElementById('intel-view-map');
+    const map = view?.querySelector('.intel-map-wrap');
+    const detail = document.getElementById('intel-detail-panel');
+    if (!view?.classList.contains('is-map-stage') || !map || !detail) return;
+    const top = map.offsetTop + 12;
+    detail.style.top = `${top}px`;
+    detail.style.maxHeight = `${Math.max(180, map.clientHeight - 24)}px`;
+  }
+
+  function bindMapStage() {
+    const openButton = document.getElementById('intel-map-stage');
+    const backButton = document.getElementById('intel-stage-back');
+    const closeButton = document.getElementById('intel-detail-close');
+    if (openButton && openButton.dataset.bound !== '1') {
+      openButton.dataset.bound = '1';
+      openButton.addEventListener('click', () => {
+        setMapStage(!document.body.classList.contains('intel-map-stage'));
+      });
+    }
+    if (backButton && backButton.dataset.bound !== '1') {
+      backButton.dataset.bound = '1';
+      backButton.addEventListener('click', () => setMapStage(false));
+    }
+    if (closeButton && closeButton.dataset.bound !== '1') {
+      closeButton.dataset.bound = '1';
+      closeButton.addEventListener('click', () => closeStageDetail());
+    }
+    if (document.body.dataset.intelStageKeys === '1') return;
+    document.body.dataset.intelStageKeys = '1';
+    window.addEventListener('resize', () => {
+      if (document.body.classList.contains('intel-map-stage')) placeStageDetail();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      const view = document.getElementById('intel-view-map');
+      if (!view?.classList.contains('is-map-stage')) return;
+      if (view.classList.contains('is-detail-open')) {
+        closeStageDetail();
+        return;
+      }
+      setMapStage(false);
+    });
+  }
+
   function formatBounds(bounds) {
     return bounds
       ? `row ${bounds.rowUp}–${bounds.rowDown} / col ${bounds.colLeft}–${bounds.colRight}`
       : '未知';
+  }
+
+  function ownershipRows(ownership, viewer) {
+    const name = String(ownership?.ownerName || '').trim();
+    const unionName = String(ownership?.ownerUnionName || '').trim();
+    const user = Number(ownership?.ownerUserId) || 0;
+    const union = Number(ownership?.ownerUnionId) || 0;
+    const selfUser = Number(viewer?.userId) || 0;
+    const selfUnion = Number(viewer?.unionId) || 0;
+    let relation = String(ownership?.relation || '');
+    if (!relation || relation === 'unknown') {
+      if (!user && !union) relation = 'unowned';
+      else if (selfUser && user === selfUser) relation = 'self';
+      else if (selfUnion && union && union === selfUnion) relation = 'ally';
+      else if (
+        user
+        && selfUser
+        && selfUnion
+        && union
+        && union !== selfUnion
+      ) relation = 'enemy';
+      else if (!user && selfUnion && union && union !== selfUnion) relation = 'enemy';
+      else relation = 'unknown';
+    }
+    const labels = {
+      self: '我',
+      ally: '我方',
+      enemy: '敌方',
+      unowned: '无主',
+      unknown: '未知',
+    };
+    const relationText = labels[relation] || '未知';
+    const side = unionName && relation !== 'unowned'
+      ? `${relationText} · ${unionName}`
+      : relationText;
+    return row('占领玩家', name || (user ? `玩家 ${user}` : '无主'))
+      + row('归属关系', side);
   }
 
   function card(title, content) {
@@ -1361,16 +1830,13 @@ if (typeof module !== 'undefined' && module.exports) {
     if (state.detail?.tile?.wid === wid) renderDetail('risk');
   }
 
-  function openBattles() {
+  function openBattles(wid = state.selectedWid) {
+    const input = document.getElementById('ba-wid');
+    if (input) input.value = String(wid || '');
     const button = [...document.querySelectorAll('nav button')].find(candidate =>
       String(candidate.getAttribute('onclick')).includes('switchTab(10,')
     );
     switchTab(10, button);
-    const input = document.getElementById('ba-wid');
-    if (input) {
-      input.value = String(state.selectedWid);
-      loadBattlesAll(1);
-    }
   }
 
   function openLineup(key) {
@@ -1387,6 +1853,8 @@ if (typeof module !== 'undefined' && module.exports) {
     openView,
     selectWid,
     locateWid,
+    searchPlayers,
+    searchHighLand,
     focusBucket,
     moveFromRadar,
     goHome,

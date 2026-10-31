@@ -111,6 +111,17 @@ class IntelligenceCenterStaticTest(unittest.TestCase):
         self.assertIn("/api/intelligence/world/summary", js)
         self.assertIn("suggestedBounds", js)
 
+    def test_map_search_lives_on_the_intelligence_page(self):
+        html = (ROOT / "static/dashboard.html").read_text(encoding="utf-8")
+        _, _, after_tab33 = html.partition("id='tab33'")
+        tab33, _, _ = after_tab33.partition("id='tab35'")
+        self.assertIn('id="intel-player-input"', tab33)
+        self.assertIn('id="intel-land-search"', tab33)
+        self.assertIn('id="intel-search-results"', tab33)
+        js = (ROOT / "static/intelligence-center.js").read_text(encoding="utf-8")
+        self.assertIn("/api/intelligence/world/search/players?name=", js)
+        self.assertIn("/api/intelligence/world/search/land?minLevel=7", js)
+
     def test_map_has_global_radar_semantic_zoom_and_navigation_controls(self):
         html = (ROOT / "static/dashboard.html").read_text(encoding="utf-8")
         js = (ROOT / "static/intelligence-center.js").read_text(encoding="utf-8")

@@ -1250,7 +1250,8 @@ async function loadBattlesAll(page){
   const result=document.getElementById('ba-result').value;
   const ftype=document.getElementById('ba-ftype').value;
   const period=document.getElementById('ba-period').value;
-  const url=`/api/battles_all?page=${_baPage}&size=50&player=${encodeURIComponent(player)}&union=${encodeURIComponent(union)}&result=${result}&fight_type=${ftype}&period=${period}`;
+  const wid=(document.getElementById('ba-wid')?.value||'').replace(/\D/g,'');
+  const url=`/api/battles_all?page=${_baPage}&size=50&player=${encodeURIComponent(player)}&union=${encodeURIComponent(union)}&result=${result}&fight_type=${ftype}&period=${period}&wid=${encodeURIComponent(wid)}`;
   const r=await apiFetch(url);
   if(!r)return;
   document.getElementById('ba-total').textContent=`共${r.total}条`;
@@ -1276,8 +1277,9 @@ async function loadBattlesAll(page){
     }
     const atkHeroes=[row.atk_hero1_id,row.atk_hero2_id,row.atk_hero3_id].filter(Boolean).map(heroTag).join('');
     const defHeroes=[row.def_hero1_id,row.def_hero2_id,row.def_hero3_id].filter(Boolean).map(heroTag).join('');
+    const place=row.wid?`WID ${row.wid}${row.wid_name?` · ${esc(row.wid_name)}`:''}`:'';
     b.innerHTML+=`<tr style='cursor:pointer' onclick='showBattleDetail(${row.battle_id})'>
-      <td style='font-family:Share Tech Mono,monospace;font-size:.68rem;color:var(--text2)'>${esc(row.time_str||'')}<br><span style='color:var(--text2);font-size:.62rem'>${ft}</span></td>
+      <td style='font-family:Share Tech Mono,monospace;font-size:.68rem;color:var(--text2)'>${esc(row.time_str||'')}<br><span style='color:var(--text2);font-size:.62rem'>${ft}${place?` · ${place}`:''}</span></td>
       <td><b>${esc(row.atk_name||'')}</b><br><span style='color:var(--text2);font-size:.65rem'>${esc(row.atk_union||'')}</span></td>
       <td style='white-space:nowrap'>${atkHeroes||'<span style="color:var(--text2);font-size:.6rem">-</span>'}</td>
       <td style='${rcStyle};font-weight:bold;text-align:center'>${rcText}</td>
@@ -2076,17 +2078,17 @@ async function loadTasks(){
     const completeCount = Number(t.complete_user_num||0);
     const progress = targetCount ? Math.min(100, Math.round(completeCount/targetCount*100)) : 0;
     return `<tr data-task-index='${index}'>
-      <td><b>${esc(t.name)}</b> ${statusBadge}${operationStageStrip(stage)}</td>
+      <td><div class='operation-task-name'><span><b>${esc(t.name)}</b> ${statusBadge}</span>${operationStageStrip(stage)}</div></td>
       <td>${posLabel}</td>
       <td style='font-size:.72rem'>${timeStr}</td>
       <td><span class='operation-member-chip'>${esc(groups)}</span></td>
       <td>${targetCount}</td>
       <td><div class='operation-progress'><strong>${completeCount}</strong><div class='operation-progress-track' style='--operation-progress:${progress}%'><i></i></div></div></td>
-      <td>
+      <td><div class='operation-actions'>
         <button class='btn' type='button' data-task-action='detail' data-task-index='${index}'>考勤详情</button>
         <button class='btn' type='button' data-task-action='statistics' data-task-index='${index}'>开始统计</button>
         <button class='btn' type='button' data-task-action='delete' data-task-index='${index}'>删除</button>
-      </td>
+      </div></td>
     </tr>`;
   }).join('');
   const taskRows = [...(b.querySelectorAll?.('tr[data-task-index]') || [])];
@@ -3494,6 +3496,17 @@ async function loadTeamReport(period){
   }
 }
 
+const TEAM_REPORT_BRAND_MARK = `<svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Observer Of STZB">
+  <rect width="64" height="64" rx="12" fill="#0b1019"/>
+  <rect x="1.25" y="1.25" width="61.5" height="61.5" rx="11" fill="none" stroke="#c8a044" stroke-width="1.5"/>
+  <g fill="none" stroke="#e8c86a" stroke-width="2.6" stroke-linecap="square">
+    <path d="M8 20 V8 H20"/><path d="M44 8 H56 V20"/><path d="M8 44 V56 H20"/><path d="M44 56 H56 V44"/>
+  </g>
+  <path d="M18 35 L32 21 L46 35 Q32 49 18 35 Z" fill="#07111c" stroke="#c8a044" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M32 29 L36.5 35 L32 41 L27.5 35 Z" fill="#e8c86a"/>
+  <path d="M32 32 L34.2 35 L32 38 L29.8 35 Z" fill="#3ab8c8"/>
+</svg>`;
+
 function buildTeamReportExportHtml(){
   if(!_trData) return '';
   const dim = document.getElementById('tr-dim')?.value||'group';
@@ -3502,6 +3515,7 @@ function buildTeamReportExportHtml(){
   const rows = _trData.rows || [];
   const s = _trData.summary || {};
   const nowText = new Date().toLocaleString('zh-CN', { hour12:false });
+  const groupName = !isGroup ? String(document.getElementById('tr-group')?.value || '') : '';
 
   const headHtml = isGroup
     ? `<tr>
@@ -3513,7 +3527,7 @@ function buildTeamReportExportHtml(){
 
   const bodyHtml = rows.map((r,i)=>{
     const wr = Number(r.win_rate||0);
-    const wrColor = wr>=60?'#41664d':wr>=40?'#8f6a2a':'#9a4d41';
+    const wrColor = wr>=60?'#34d399':wr>=40?'#e8c86a':'#f05267';
     const rankCls = i===0?'rank1':i===1?'rank2':i===2?'rank3':'';
     return isGroup
       ? `<tr>
@@ -3545,126 +3559,297 @@ function buildTeamReportExportHtml(){
         </tr>`;
   }).join('');
 
+  const reportPayload = JSON.stringify({
+    subtitle: `${isGroup ? '按分组' : '按成员'} · ${periodName}${groupName ? ` · ${groupName}` : ''}`,
+    nowText,
+    rowCount: rows.length,
+    logo: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#0b1019"/><rect x="1.25" y="1.25" width="61.5" height="61.5" rx="11" fill="none" stroke="#c8a044" stroke-width="1.5"/><g fill="none" stroke="#e8c86a" stroke-width="2.6" stroke-linecap="square"><path d="M8 20 V8 H20"/><path d="M44 8 H56 V20"/><path d="M8 44 V56 H20"/><path d="M44 56 H56 V44"/></g><path d="M18 35 L32 21 L46 35 Q32 49 18 35 Z" fill="#07111c" stroke="#c8a044" stroke-width="2.4" stroke-linejoin="round"/><path d="M32 29 L36.5 35 L32 41 L27.5 35 Z" fill="#e8c86a"/><path d="M32 32 L34.2 35 L32 38 L29.8 35 Z" fill="#3ab8c8"/></svg>`,
+    cards: [
+      { label:'总战报', value:String(s.total_battles||0), accent:'#e8c86a' },
+      { label:'胜率', value:`${s.win_rate||0}%`, accent:'#34d399' },
+      { label:'参战人数', value:String(s.total_players||0), accent:'#3ab8c8' },
+      { label:'平局', value:String(s.total_draws||0), accent:'#c8a044' },
+      { label:'攻城场次', value:String(s.total_city||0), accent:'#f05267' },
+      { label:'总功勋', value:fmt(s.total_gongxun||0), accent:'#8b6cff' },
+    ],
+    headers: isGroup
+      ? ['#','分组','人数','战报','胜','败','平','胜率','攻城','总功勋','平均武勋','平均势力值']
+      : ['#','成员','分组','战报','胜','败','平','胜率','攻城','功勋','势力值'],
+    widths: isGroup
+      ? [44,148,72,72,58,58,58,78,72,118,118,136]
+      : [44,156,136,84,66,66,66,84,84,128,128],
+    table: rows.map((r, index)=>{
+      const wr = Number(r.win_rate||0);
+      const cells = isGroup
+        ? [index + 1, r.name||'', r.player_cnt||0, r.battles||0, r.wins||0, r.loses||0, r.draws||0, `${wr}%`, r.city_battles||0, fmt(r.total_gongxun||0), Math.round(Number(r.avg_gongxun||0)), Math.round(Number(r.avg_power||0))]
+        : [index + 1, r.name||'', r.group_name||'', r.battles||0, r.wins||0, r.loses||0, r.draws||0, `${wr}%`, r.city_battles||0, fmt(r.total_gongxun||0), fmt(r.power||0)];
+      return { cells, wr, index };
+    }),
+  }).replace(/</g, '\\u003c');
+
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>团数据报告</title>
-<style>
-  :root{
-    --paper:#f8f1e4;--paper-soft:#f3e8d6;--paper-soft-2:#eadcc4;--paper-edge:#e1d1b4;--line:#d7c3a0;
-    --text:#2a241c;--muted:#7a6956;--title:#1b1510;--accent:#8f6a2a;--accent-soft:#e7d8ba;
-    --green:#41664d;--red:#9a4d41;--blue:#4e6a8d;--cyan:#557978;--purple:#705c8d;
-  }
-  @page{size:A4 landscape;margin:12mm;}
-  body{
-    margin:0;padding:30px;color:var(--text);font-family:'SimSun','宋体',serif;
-    background:
-      radial-gradient(circle at top left, rgba(143,106,42,.08), transparent 28%),
-      radial-gradient(circle at bottom right, rgba(122,105,86,.08), transparent 24%),
-      linear-gradient(180deg,#fbf5ea 0%,#f4ecde 100%);
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;
-  }
-  body.long-shot{padding:20px;}
-  .page-shell{
-    max-width:1520px;margin:0 auto;padding:18px 18px 10px;
-    background:linear-gradient(180deg,rgba(255,251,245,.94) 0%,rgba(248,241,228,.96) 100%);
-    border:1px solid var(--paper-edge);border-radius:18px;
-    box-shadow:0 18px 40px rgba(120,90,45,.10), inset 0 1px 0 rgba(255,255,255,.55);
-    position:relative;overflow:hidden;
-  }
-  .page-shell::before{
-    content:'';position:absolute;inset:10px;border:1px solid rgba(143,106,42,.18);border-radius:12px;pointer-events:none;
-  }
-  .page{max-width:none;margin:0 auto;position:relative;z-index:1;}
-  .header{
-    position:relative;display:flex;justify-content:space-between;align-items:flex-end;
-    border-bottom:2px solid rgba(143,106,42,.45);padding:4px 8px 16px;margin-bottom:22px;gap:12px;
-  }
-  .header::after{
-    content:'';position:absolute;left:0;bottom:-2px;width:140px;height:4px;border-radius:999px;
-    background:linear-gradient(90deg,var(--accent),rgba(143,106,42,0));
-  }
-  .title{font-size:30px;letter-spacing:.14em;color:var(--title);font-weight:700;}
-  .sub{margin-top:6px;color:var(--muted);font-size:13px;letter-spacing:.04em;}
-  .meta{font-size:13px;color:var(--muted);text-align:right;line-height:1.8;}
-  .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:18px 0 20px;}
-  .card{
-    background:linear-gradient(180deg,#fffaf1 0%,#f4ead9 100%);
-    border:1px solid var(--line);border-radius:16px;padding:16px 14px;text-align:center;
-    box-shadow:0 10px 20px rgba(143,106,42,.08), inset 0 1px 0 rgba(255,255,255,.55);
-  }
-  .card .val{font-size:30px;line-height:1.1;color:var(--title);font-weight:700;}
-  .card .lbl{margin-top:6px;font-size:12px;color:var(--muted);letter-spacing:.1em;}
-  .table-wrap{
-    background:rgba(255,250,242,.94);border:1px solid var(--line);border-radius:16px;overflow:hidden;
-    box-shadow:0 10px 24px rgba(86,65,33,.06), inset 0 1px 0 rgba(255,255,255,.55);
-  }
-  table{width:100%;border-collapse:collapse;background:transparent;}
-  thead th{
-    background:#efe2cc;color:var(--muted);padding:12px 10px;font-size:13px;text-align:left;
-    border-bottom:1px solid var(--line);position:sticky;top:0;
-  }
-  tbody td{padding:10px 10px;border-bottom:1px solid rgba(215,195,160,.55);font-size:14px;color:var(--text);}
-  tbody tr:nth-child(odd){background:rgba(255,251,245,.82);}
-  tbody tr:nth-child(even){background:rgba(248,239,224,.66);}
-  .name{color:var(--title);font-weight:700;}
-  .win{color:var(--green);font-weight:700;}
-  .lose{color:var(--red);font-weight:700;}
-  .draw{color:var(--accent);font-weight:700;}
-  .rank1,.rank2,.rank3{color:var(--title);font-weight:700;}
-  .footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:right;}
-  .long-shot table{border-radius:0;overflow:visible;}
-  .long-shot thead th{position:static;}
-  .action-bar{
-    position:sticky;top:0;z-index:9;display:flex;justify-content:flex-end;gap:10px;padding:0 0 14px;
-    background:linear-gradient(180deg,rgba(244,236,222,.98) 0%,rgba(244,236,222,.9) 78%,rgba(244,236,222,0) 100%);
-  }
-  .action-btn{
-    background:linear-gradient(180deg,#f6e8ca 0%,#e6d0a4 100%);border:1px solid #cfb585;color:#3b2d18;
-    font-weight:700;font-size:14px;padding:10px 18px;border-radius:999px;cursor:pointer;
-    box-shadow:0 8px 18px rgba(120,90,45,.12);
-  }
-  .action-btn.secondary{background:linear-gradient(180deg,#fffaf1 0%,#efe1c7 100%);color:var(--text);}
-  @media print{
-    .action-bar{display:none !important;}
-    body{padding:0;background:#fff !important;color:var(--text) !important;}
-    .page-shell{max-width:none;box-shadow:none;border-radius:0;}
-    .card,.header,.table-wrap,table{break-inside:avoid;box-shadow:none !important;}
-  }
-</style>
+<title>团数据报告 · Observer Of STZB</title>
+<script type="application/json" id="team-report-data">${reportPayload}</script>
+<script>
+function teamReportRoundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function teamReportFitText(ctx, text, maxWidth){
+  const value = String(text);
+  if(ctx.measureText(value).width <= maxWidth) return value;
+  let cut = value;
+  while(cut && ctx.measureText(cut + '…').width > maxWidth) cut = cut.slice(0, -1);
+  return cut ? cut + '…' : '';
+}
+function teamReportCellColor(header, index, wr){
+  if(header === '#') return index === 0 ? '#e8c86a' : index === 1 ? '#d7dbe4' : index === 2 ? '#c07840' : '#f6f1e4';
+  if(header === '胜') return '#34d399';
+  if(header === '败') return '#f05267';
+  if(header === '平') return '#e8c86a';
+  if(header === '胜率') return wr >= 60 ? '#34d399' : wr >= 40 ? '#e8c86a' : '#f05267';
+  return '#f6f1e4';
+}
+async function paintTeamReportPng(){
+  const data = JSON.parse(document.getElementById('team-report-data').textContent);
+  const logo = new Image();
+  logo.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data.logo);
+  await logo.decode();
+  const widths = data.widths;
+  const width = 56 + widths.reduce(function(sum, item){ return sum + item; }, 0);
+  const rowH = 36;
+  const tableY = 238;
+  const bodyRows = data.table.length ? data.table : [{ cells:['暂无记录'], wr:0, index:-1, empty:true }];
+  const height = tableY + 40 + bodyRows.length * rowH + 52;
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#0b1019';
+  ctx.fillRect(0, 0, width, height);
+  const glow = ctx.createRadialGradient(width - 30, 0, 10, width - 30, 0, 260);
+  glow.addColorStop(0, 'rgba(52,211,153,0.14)');
+  glow.addColorStop(1, 'rgba(52,211,153,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, 200);
+  ctx.drawImage(logo, 28, 28, 56, 56);
+  ctx.fillStyle = '#34d399';
+  ctx.font = '700 11px ui-monospace, monospace';
+  ctx.fillText('OBSERVER OF STZB', 98, 46);
+  ctx.fillStyle = '#f6f1e4';
+  ctx.font = '700 28px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText('团数据', 98, 78);
+  ctx.fillStyle = '#8d8270';
+  ctx.font = '13px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(data.subtitle, 98, 100);
+  ctx.textAlign = 'right';
+  ctx.fillText('导出时间 ' + data.nowText, width - 28, 52);
+  ctx.fillText(data.rowCount + ' 条记录', width - 28, 74);
+  ctx.textAlign = 'left';
+  ctx.strokeStyle = 'rgba(200,160,68,0.45)';
+  ctx.beginPath();
+  ctx.moveTo(28, 122);
+  ctx.lineTo(width - 28, 122);
+  ctx.stroke();
+  const gap = 10;
+  const cardW = (width - 56 - gap * 5) / 6;
+  data.cards.forEach(function(card, index){
+    const x = 28 + index * (cardW + gap);
+    const y = 140;
+    ctx.fillStyle = '#152033';
+    teamReportRoundRect(ctx, x, y, cardW, 82, 10);
+    ctx.fill();
+    ctx.strokeStyle = '#233043';
+    ctx.stroke();
+    ctx.fillStyle = card.accent;
+    ctx.fillRect(x + 1, y + 12, 2, 58);
+    ctx.fillStyle = '#f6f1e4';
+    ctx.font = '700 22px ui-monospace, monospace';
+    ctx.fillText(teamReportFitText(ctx, card.value, cardW - 24), x + 14, y + 40);
+    ctx.fillStyle = '#8d8270';
+    ctx.font = '11px "PingFang SC", "Microsoft YaHei", sans-serif';
+    ctx.fillText(card.label, x + 14, y + 62);
+  });
+  const tableX = 28;
+  const tableW = width - 56;
+  ctx.fillStyle = '#152033';
+  ctx.fillRect(tableX, tableY, tableW, 40);
+  ctx.strokeStyle = '#233043';
+  ctx.strokeRect(tableX, tableY, tableW, 40 + bodyRows.length * rowH);
+  ctx.font = '600 12px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillStyle = '#cbbfa6';
+  let headerX = tableX;
+  data.headers.forEach(function(header, index){
+    ctx.fillText(header, headerX + 12, tableY + 25);
+    headerX += widths[index];
+  });
+  bodyRows.forEach(function(row, rowIndex){
+    const y = tableY + 40 + rowIndex * rowH;
+    if(rowIndex % 2 === 1){
+      ctx.fillStyle = 'rgba(18,29,63,0.55)';
+      ctx.fillRect(tableX + 1, y, tableW - 2, rowH);
+    }
+    ctx.font = '13px "PingFang SC", "Microsoft YaHei", sans-serif';
+    if(row.empty){
+      ctx.fillStyle = '#8d8270';
+      ctx.fillText('暂无记录', tableX + 12, y + 23);
+      return;
+    }
+    let cellX = tableX;
+    row.cells.forEach(function(cell, col){
+      const header = data.headers[col];
+      ctx.fillStyle = teamReportCellColor(header, row.index, row.wr);
+      ctx.font = (header === '#' || header === '分组' || header === '成员')
+        ? '700 13px "PingFang SC", "Microsoft YaHei", sans-serif'
+        : '13px "PingFang SC", "Microsoft YaHei", sans-serif';
+      ctx.fillText(teamReportFitText(ctx, cell, widths[col] - 18), cellX + 12, y + 23);
+      cellX += widths[col];
+    });
+  });
+  const footerY = tableY + 40 + bodyRows.length * rowH + 28;
+  ctx.fillStyle = '#8d8270';
+  ctx.font = '11px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('Observer Of STZB', 28, footerY);
+  ctx.textAlign = 'right';
+  ctx.fillText('团数据报告', width - 28, footerY);
+  return canvas;
+}
+</script>
 </head>
 <body>
   <div class="page-shell">
+    <style>
+      :root{
+        --bg:#0b1019;--panel:#10192a;--raised:#152033;--line:#233043;
+        --gold:#c8a044;--gold-2:#e8c86a;--cream:#f6f1e4;--muted:#cbbfa6;--dim:#8d8270;
+        --green:#34d399;--red:#f05267;--cyan:#3ab8c8;--purple:#8b6cff;
+      }
+      @page{size:A4 landscape;margin:10mm;}
+      *{box-sizing:border-box;}
+      body{
+        margin:0;padding:28px;color:var(--cream);
+        font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+        background:#0b1019;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact;
+      }
+      body.long-shot{padding:16px;}
+      .page-shell{
+        max-width:1280px;margin:0 auto;padding:28px 28px 18px;
+        background:
+          radial-gradient(circle at 92% 0%, rgba(52,211,153,.10), transparent 26%),
+          linear-gradient(180deg,#121a28 0%, #0b1019 140px);
+        border:1px solid var(--line);border-radius:12px;
+      }
+      .report-head{
+        display:flex;justify-content:space-between;align-items:flex-start;gap:24px;
+        padding-bottom:16px;border-bottom:1px solid rgba(200,160,68,.45);
+      }
+      .brand{display:flex;align-items:center;gap:14px;min-width:0;}
+      .brand-mark{width:56px;height:56px;flex:0 0 auto;}
+      .kicker{
+        color:var(--green);font:700 11px/1 ui-monospace,monospace;letter-spacing:.18em;
+      }
+      h1{margin:5px 0 0;color:var(--cream);font-size:28px;font-weight:700;letter-spacing:.06em;}
+      .sub{margin:6px 0 0;color:var(--dim);font-size:13px;}
+      .meta{color:var(--dim);font-size:12px;line-height:1.8;text-align:right;white-space:nowrap;}
+      .cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:18px 0;}
+      .card{
+        position:relative;overflow:hidden;padding:14px 12px 12px 14px;
+        background:linear-gradient(145deg,var(--raised),var(--panel));
+        border:1px solid var(--line);border-radius:10px;
+      }
+      .card::before{
+        content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--accent,var(--gold));
+      }
+      .card .val{color:var(--cream);font:700 26px/1.15 ui-monospace,monospace;}
+      .card .lbl{margin-top:6px;color:var(--dim);font-size:11px;}
+      .table-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+      table{width:100%;border-collapse:collapse;background:transparent;}
+      thead{display:table-header-group;}
+      thead th{
+        padding:10px 12px;background:var(--raised);color:var(--muted);
+        font-size:12px;font-weight:600;text-align:left;border-bottom:1px solid var(--line);
+      }
+      tbody td{
+        padding:9px 12px;color:var(--cream);font-size:13px;
+        border-bottom:1px solid rgba(35,48,67,.9);
+      }
+      tbody tr:nth-child(even){background:rgba(18,29,63,.45);}
+      tr{break-inside:avoid;}
+      .name{font-weight:700;}
+      .win{color:var(--green);font-weight:700;}
+      .lose{color:var(--red);font-weight:700;}
+      .draw{color:var(--gold-2);font-weight:700;}
+      .rank1{color:var(--gold-2);font-weight:700;}
+      .rank2{color:#d7dbe4;font-weight:700;}
+      .rank3{color:#c07840;font-weight:700;}
+      .empty{padding:28px 12px;color:var(--dim);text-align:center;}
+      .footer{
+        display:flex;justify-content:space-between;gap:12px;
+        margin-top:14px;color:var(--dim);font-size:11px;letter-spacing:.04em;
+      }
+      .action-bar{
+        position:sticky;top:0;z-index:2;display:flex;justify-content:flex-end;gap:8px;
+        max-width:1280px;margin:0 auto 12px;
+      }
+      .action-btn{
+        min-height:36px;padding:6px 14px;border:0;border-radius:8px;cursor:pointer;
+        background:linear-gradient(100deg,#c8a044,#e8c86a);color:#0b1019;
+        font:600 13px/20px "PingFang SC","Microsoft YaHei",sans-serif;
+      }
+      .action-btn.secondary{
+        border:1px solid var(--line);background:transparent;color:var(--muted);
+      }
+      @media print{
+        .action-bar{display:none !important;}
+        body{padding:0;background:#0b1019 !important;}
+        .page-shell{max-width:none;border:0;border-radius:0;}
+      }
+    </style>
     <div class="page" id="team-report-page">
-      <div class="header">
-        <div>
-          <div class="title">团数据统计报告</div>
-          <div class="sub">${isGroup?'按分组':'按成员'} · ${periodName}${!isGroup&&document.getElementById('tr-group')?.value?` · ${esc(document.getElementById('tr-group').value)}`:''}</div>
+      <header class="report-head">
+        <div class="brand">
+          ${TEAM_REPORT_BRAND_MARK}
+          <div>
+            <div class="kicker">OBSERVER OF STZB</div>
+            <h1>团数据</h1>
+            <div class="sub">${isGroup?'按分组':'按成员'} · ${periodName}${groupName?` · ${esc(groupName)}`:''}</div>
+          </div>
         </div>
         <div class="meta">
-          <div>导出时间：${nowText}</div>
-          <div>记录条数：${rows.length}</div>
+          <div>导出时间 ${nowText}</div>
+          <div>${rows.length} 条记录</div>
         </div>
-      </div>
-
+      </header>
       <div class="cards">
-        <div class="card"><div class="val">${s.total_battles||0}</div><div class="lbl">总战报</div></div>
-        <div class="card"><div class="val" style="color:var(--green)">${s.win_rate||0}%</div><div class="lbl">胜率</div></div>
-        <div class="card"><div class="val" style="color:var(--cyan)">${s.total_players||0}</div><div class="lbl">参战人数</div></div>
-        <div class="card"><div class="val" style="color:var(--accent)">${s.total_draws||0}</div><div class="lbl">平局</div></div>
-        <div class="card"><div class="val" style="color:var(--red)">${s.total_city||0}</div><div class="lbl">攻城场次</div></div>
-        <div class="card"><div class="val" style="color:var(--purple)">${fmt(s.total_gongxun||0)}</div><div class="lbl">总功勋</div></div>
+        <div class="card" style="--accent:#e8c86a"><div class="val">${s.total_battles||0}</div><div class="lbl">总战报</div></div>
+        <div class="card" style="--accent:#34d399"><div class="val">${s.win_rate||0}%</div><div class="lbl">胜率</div></div>
+        <div class="card" style="--accent:#3ab8c8"><div class="val">${s.total_players||0}</div><div class="lbl">参战人数</div></div>
+        <div class="card" style="--accent:#c8a044"><div class="val">${s.total_draws||0}</div><div class="lbl">平局</div></div>
+        <div class="card" style="--accent:#f05267"><div class="val">${s.total_city||0}</div><div class="lbl">攻城场次</div></div>
+        <div class="card" style="--accent:#8b6cff"><div class="val">${fmt(s.total_gongxun||0)}</div><div class="lbl">总功勋</div></div>
       </div>
-
       <div class="table-wrap">
         <table>
           <thead>${headHtml}</thead>
-          <tbody>${bodyHtml}</tbody>
+          <tbody>${bodyHtml || `<tr><td class="empty" colspan="${isGroup?12:11}">暂无记录</td></tr>`}</tbody>
         </table>
       </div>
-
-      <div class="footer">率土战场指挥台 · 导出报告</div>
+      <footer class="footer">
+        <span>Observer Of STZB</span>
+        <span>团数据报告</span>
+      </footer>
     </div>
   </div>
 </body>
@@ -3748,7 +3933,9 @@ function renderStateMap(stateRows){
     if(legendHigh) legendHigh.textContent = `多 ${metricLabel}`;
     if(legendLow) legendLow.textContent = `少 ${metricLabel}`;
 
-    const html = SR_STATE_POLYGONS.map((item)=>{
+    const shapes = [];
+    const labels = [];
+    SR_STATE_POLYGONS.forEach((item)=>{
       const row = stateMap[item.name] || {};
       const players = Number(row.player_count||0);
       const totalPower = Number(row.total_power||0);
@@ -3757,26 +3944,24 @@ function renderStateMap(stateRows){
       const fill = srStateColor(metricValue, maxMetric, metric);
       const labelPos = item.label || item.center || [0,0];
       const valuePos = item.value || [labelPos[0], labelPos[1] + 22];
-      const labelX = labelPos[0], labelY = labelPos[1];
-      const valueX = valuePos[0], valueY = valuePos[1];
       const valueText = metric === 'total_power' ? fmt(totalPower) : `${players}人`;
-      return `
-        <g class='sr-map-state' style='cursor:default'>
-          <polygon points='${item.points}' fill='${fill}' stroke='#7387a8' stroke-width='2.2' opacity='0.97'>
-            <title>${item.name}\n人数：${players}人\n总势力：${fmt(totalPower)}\n平均势力：${fmt(avgPower)}\n当前着色：${metricLabel} ${metric === 'total_power' ? fmt(totalPower) : players}</title>
-          </polygon>
-          <text x='${labelX}' y='${labelY}' text-anchor='middle' fill='#f3efe4' style='font-size:18px;font-weight:700;paint-order:stroke;stroke:#101722;stroke-width:4'>${item.name}</text>
-          <text x='${valueX}' y='${valueY}' text-anchor='middle' fill='#f3efe4' style='font-size:${metric === 'total_power' ? 14 : 16}px;paint-order:stroke;stroke:#101722;stroke-width:4'>${valueText}</text>
-        </g>`;
-    }).join('');
+      shapes.push(`
+        <polygon points='${item.points}' fill='${fill}' stroke='#8ea0bb' stroke-width='1.6' opacity='0.97'>
+          <title>${item.name}\n人数：${players}人\n总势力：${fmt(totalPower)}\n平均势力：${fmt(avgPower)}\n当前着色：${metricLabel} ${metric === 'total_power' ? fmt(totalPower) : players}</title>
+        </polygon>`);
+      labels.push(`
+        <text x='${labelPos[0]}' y='${labelPos[1]}' text-anchor='middle' fill='#f6f1e4' stroke='#0b1019' stroke-width='0.7' paint-order='stroke' text-rendering='optimizeLegibility' style='font-family:var(--font-sans);font-size:18px;font-weight:700'>${item.name}</text>
+        <text x='${valuePos[0]}' y='${valuePos[1]}' text-anchor='middle' fill='#f6f1e4' stroke='#0b1019' stroke-width='0.55' paint-order='stroke' text-rendering='optimizeLegibility' style='font-family:var(--font-sans);font-size:${metric === 'total_power' ? 14 : 15}px;font-weight:600'>${valueText}</text>`);
+    });
 
     svg.innerHTML = `
       <defs>
-        <filter id='srMapGlow'>
-          <feDropShadow dx='0' dy='0' stdDeviation='8' flood-color='${metric === 'total_power' ? '#f59e0b' : '#3b82f6'}' flood-opacity='0.22'/>
+        <filter id='srMapGlow' x='-12%' y='-12%' width='124%' height='124%' color-interpolation-filters='sRGB'>
+          <feDropShadow dx='0' dy='0' stdDeviation='5' flood-color='${metric === 'total_power' ? '#f59e0b' : '#3b82f6'}' flood-opacity='0.28'/>
         </filter>
       </defs>
-      <g filter='url(#srMapGlow)'>${html}</g>
+      <g filter='url(#srMapGlow)'>${shapes.join('')}</g>
+      <g class='sr-map-labels'>${labels.join('')}</g>
     `;
   } catch (e) {
     console.error('renderStateMap failed:', e);
@@ -4029,42 +4214,16 @@ function exportTeamReportLongImage(){
     bar.className = 'action-bar';
     bar.innerHTML = '<button class="action-btn" id="save-long-shot">保存长图</button><button class="action-btn secondary" onclick="window.print()">打印 / 另存PDF</button>';
     const shell = document.querySelector('.page-shell') || document.body;
-    shell.insertBefore(bar, shell.firstChild);
+    shell.parentNode.insertBefore(bar, shell);
     function downloadLongShot(){
-      try{
-        const page = document.getElementById('team-report-page');
-        const shellEl = document.querySelector('.page-shell') || page;
-        const oldBg = document.body.style.background;
-        document.body.style.background = '#f4ecde';
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + shellEl.scrollWidth + '" height="' + shellEl.scrollHeight + '">' +
-          '<foreignObject width="100%" height="100%">' + new XMLSerializer().serializeToString(shellEl) + '</foreignObject>' +
-          '</svg>';
-        const blob = new Blob([svg], {type:'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        const img = new Image();
-        img.onload = function(){
-          const canvas = document.createElement('canvas');
-          canvas.width = shellEl.scrollWidth;
-          canvas.height = shellEl.scrollHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#f4ecde';
-          ctx.fillRect(0,0,canvas.width,canvas.height);
-          ctx.drawImage(img,0,0);
-          URL.revokeObjectURL(url);
-          document.body.style.background = oldBg;
-          const a = document.createElement('a');
-          a.href = canvas.toDataURL('image/png');
-          a.download = '团数据长图_' + new Date().toISOString().slice(0,10) + '.png';
-          a.click();
-        };
-        img.onerror = function(){
-          URL.revokeObjectURL(url);
-          alert('当前浏览器不支持直接生成长图，请改用“打印 / 另存PDF”。');
-        };
-        img.src = url;
-      }catch(e){
-        alert('生成长图失败：' + (e && e.message ? e.message : e));
-      }
+      paintTeamReportPng().then(function(canvas){
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = '团数据长图_' + new Date().toISOString().slice(0,10) + '.png';
+        a.click();
+      }).catch(function(error){
+        alert('生成长图失败：' + (error && error.message ? error.message : error));
+      });
     }
     document.getElementById('save-long-shot').addEventListener('click', downloadLongShot);
   <\/script>`;

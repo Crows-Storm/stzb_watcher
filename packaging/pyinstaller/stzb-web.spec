@@ -25,5 +25,6 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure)
-exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name="STZB助手-Web",
-         debug=False, bootloader_ignore_signals=False, strip=False, upx=False, console=True)
+exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name="Observer-Of-STZB",
+         debug=False, bootloader_ignore_signals=False, strip=False, upx=False, console=True,
+         icon=str(ROOT / "packaging" / "icon" / "observer-of-stzb.ico"))

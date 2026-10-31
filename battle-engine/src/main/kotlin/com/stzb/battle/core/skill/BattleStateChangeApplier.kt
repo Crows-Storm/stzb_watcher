@@ -1141,6 +1141,10 @@ class BattleStateChangeApplier(
                 requireHero(change.source)
                 requireHero(change.target)
             }
+            is ConsumeEffectUseChange -> {
+                requireHero(change.source)
+                requireHero(change.target)
+            }
             else -> throw UnsupportedBattleStateChangeException(change)
         }
     }

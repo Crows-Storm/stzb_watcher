@@ -8,6 +8,8 @@ import {
   hitTestArmy,
   panBounds,
   widToPoint,
+  relationFor,
+  wheelZoomFactor,
   zoomBounds,
 } from "../../static/live-army-map.mjs";
 
@@ -160,8 +162,50 @@ test("stale current army is warning evidence instead of live state", () => {
 
   assert.equal(plan.markers[0].stale, true);
   assert.equal(plan.markers[0].shape, "diamond");
-  assert.equal(plan.markers[0].color, "#f5b84b");
+  assert.equal(plan.markers[0].relation, "unknown");
+  assert.equal(plan.markers[0].color, "#94a3b8");
+  assert.equal(plan.markers[0].evidenceColor, "#f5b84b");
   assert.equal(plan.routes[0].kind, "stale");
+});
+
+test("route color follows player id and union id", () => {
+  const viewer = { userId: 7, unionId: 100 };
+  assert.equal(relationFor(7, 100, viewer), "self");
+  assert.equal(relationFor(8, 100, viewer), "ally");
+  assert.equal(relationFor(9, 200, viewer), "enemy");
+  assert.equal(relationFor(9, 0, viewer), "unknown");
+  assert.equal(relationFor(9, 200, null), "unknown");
+
+  const plan = buildArmyDrawPlan(
+    [
+      fixtureArmy({ armyId: 1, userId: 7, ownerUnionId: 100 }),
+      fixtureArmy({ armyId: 2, userId: 8, ownerUnionId: 100 }),
+      fixtureArmy({ armyId: 3, userId: 9, ownerUnionId: 200 }),
+    ],
+    0,
+    { rowUp: 1, rowDown: 2, colLeft: 1, colRight: 20 },
+    { width: 800, height: 560 },
+    { viewer },
+  );
+  assert.deepEqual(
+    plan.routes.map((route) => route.relation),
+    ["self", "ally", "enemy"],
+  );
+  assert.equal(plan.routes.find((route) => route.armyId === 1).color, "#34d399");
+  assert.equal(plan.routes.find((route) => route.armyId === 3).color, "#f05267");
+});
+
+test("trackpad wheel zoom stays near one step", () => {
+  const gentle = wheelZoomFactor(-40);
+  assert.ok(gentle > 0.93 && gentle < 1);
+  const zoomed = zoomBounds(
+    { rowUp: 10, rowDown: 109, colLeft: 20, colRight: 119 },
+    40,
+    50,
+    gentle,
+  );
+  const span = zoomed.rowDown - zoomed.rowUp + 1;
+  assert.ok(span > 80 && span < 100);
 });
 
 

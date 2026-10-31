@@ -85,6 +85,47 @@ class WorldIntelligenceApiTest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    def test_search_routes_return_player_city_and_high_land(self):
+        self.conn.execute(
+            """
+            INSERT INTO world_map_users(
+                user_id,name,role_id,union_id,union_name,raw_json,source_seq
+            ) VALUES(11281,'虹下丨郁金香',1,1006,'天丨水泊梁山','[]',1)
+            """
+        )
+        self.conn.execute(
+            """
+            INSERT INTO world_tiles(
+                wid,row,col,city_type,city_param,user_id,union_id,
+                protect_end_time,name,belong_city,world_city_state,
+                guard_end_time,force,state_id,view_range_add,
+                raw_world_city,source_seq
+            )
+            SELECT 3940956,394,956,1,city_param,11281,1006,protect_end_time,
+                   '虹下丨郁金香',belong_city,world_city_state,guard_end_time,
+                   force,state_id,view_range_add,raw_world_city,source_seq
+            FROM world_tiles WHERE wid=10004
+            """
+        )
+        missing = self.client.get("/api/intelligence/world/search/players")
+        self.assertEqual(missing.status_code, 400)
+        found = self.client.get(
+            "/api/intelligence/world/search/players?name=郁金香"
+        ).get_json()
+        self.assertTrue(found["ok"])
+        self.assertEqual(found["players"][0]["wid"], 3940956)
+        land = self.client.get(
+            "/api/intelligence/world/search/land?minLevel=7"
+        ).get_json()
+        self.assertTrue(land["ok"])
+        self.assertIn(10004, [item["wid"] for item in land["lands"]])
+        self.assertEqual(
+            7,
+            next(item["landLevel"] for item in land["lands"] if item["wid"] == 10004),
+        )
+        rejected = self.client.get("/api/intelligence/world/search/land?minLevel=0")
+        self.assertEqual(rejected.status_code, 400)
+
 
 if __name__ == "__main__":
     unittest.main()
