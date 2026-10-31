@@ -5,6 +5,13 @@ import argparse
 import threading
 import webbrowser
 
+# Beta版本授权验证
+try:
+    from beta_license import enforce_beta_license
+    BETA_MODE = True
+except ImportError:
+    BETA_MODE = False
+
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="STZB Web 本地启动器")
@@ -26,6 +33,10 @@ def run_server(**kwargs) -> None:
 
 
 def main(argv=None) -> None:
+    # Beta版本授权验证
+    if BETA_MODE:
+        enforce_beta_license()
+    
     args = parse_args(argv)
     url = f"http://{args.host}:{args.port}/"
     if args.browser:
