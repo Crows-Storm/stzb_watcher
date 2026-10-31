@@ -172,7 +172,7 @@ def build_exe(output_name):
     
     try:
         subprocess.run(
-            ["pyinstaller", str(spec_file), "--clean", "--noconfirm"],
+            [sys.executable, "-m", "PyInstaller", str(spec_file), "--clean", "--noconfirm"],
             cwd=root,
             check=True
         )
