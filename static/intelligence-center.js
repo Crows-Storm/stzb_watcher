@@ -509,6 +509,7 @@ if (typeof module !== 'undefined' && module.exports) {
         {
           bounds: state.bounds,
           layers: state.layers,
+          viewer: state.viewer,
           routes: state.mode === 'near'
             ? window.IntelligenceMap.routesFromArmies?.(
               state.liveArmies,
@@ -775,7 +776,7 @@ if (typeof module !== 'undefined' && module.exports) {
       body.innerHTML = card(
         '风险解释',
         Object.entries(risk.components || {}).map(([key, value]) => row(key, value)).join('')
-        + row('归属关系', risk.ownership?.relation || 'unknown')
+        + ownershipRows(risk.ownership, state.viewer)
         + row('置信度', `${Math.round((risk.confidence || 0) * 100)}%`)
         + row('未知分量', (risk.unknownComponents || []).join(', ') || '无')
       ) + card(
@@ -1746,6 +1747,43 @@ if (typeof module !== 'undefined' && module.exports) {
     return bounds
       ? `row ${bounds.rowUp}–${bounds.rowDown} / col ${bounds.colLeft}–${bounds.colRight}`
       : '未知';
+  }
+
+  function ownershipRows(ownership, viewer) {
+    const name = String(ownership?.ownerName || '').trim();
+    const unionName = String(ownership?.ownerUnionName || '').trim();
+    const user = Number(ownership?.ownerUserId) || 0;
+    const union = Number(ownership?.ownerUnionId) || 0;
+    const selfUser = Number(viewer?.userId) || 0;
+    const selfUnion = Number(viewer?.unionId) || 0;
+    let relation = String(ownership?.relation || '');
+    if (!relation || relation === 'unknown') {
+      if (!user && !union) relation = 'unowned';
+      else if (selfUser && user === selfUser) relation = 'self';
+      else if (selfUnion && union && union === selfUnion) relation = 'ally';
+      else if (
+        user
+        && selfUser
+        && selfUnion
+        && union
+        && union !== selfUnion
+      ) relation = 'enemy';
+      else if (!user && selfUnion && union && union !== selfUnion) relation = 'enemy';
+      else relation = 'unknown';
+    }
+    const labels = {
+      self: '我',
+      ally: '我方',
+      enemy: '敌方',
+      unowned: '无主',
+      unknown: '未知',
+    };
+    const relationText = labels[relation] || '未知';
+    const side = unionName && relation !== 'unowned'
+      ? `${relationText} · ${unionName}`
+      : relationText;
+    return row('占领玩家', name || (user ? `玩家 ${user}` : '无主'))
+      + row('归属关系', side);
   }
 
   function card(title, content) {

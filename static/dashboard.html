@@ -1876,8 +1876,8 @@ td.num,th.num{font-family:var(--font-mono);}
     <div class='hud-panel-head'>
       <h3 id='tr-table-title'>分组战斗数据</h3>
       <div class='tbl-controls'>
-        <button class='btn' onclick='exportTeamReportPDF()'>导出 PDF</button>
-        <button class='btn' onclick='exportTeamReportLongImage()'>导出长图</button>
+        <button class='btn organization-export' type='button' onclick='exportTeamReportPDF()'>导出 PDF</button>
+        <button class='btn organization-export' type='button' onclick='exportTeamReportLongImage()'>导出长图</button>
       </div>
     </div>
     <div class='hud-table-scroll'>
@@ -2242,9 +2242,11 @@ td.num,th.num{font-family:var(--font-mono);}
           <p id="intel-map-help-self">正在对照当前账号的玩家 ID。</p>
           <ul>
             <li>方块底色是土地等级，越亮越高，从 1 到 9。它不是守军难度。</li>
+            <li>要塞、主城和分城画在自己的格子上。蓝色方块是我方，红色方块是敌方。系统要塞没有归属时只画图标。</li>
+            <li>城池按整座范围画一个图标。5×5 的城是一整块图标，不是每格一个。周围格子按占领玩家上色，中心格只认同盟。</li>
             <li>右上角三角是占领者。绿色是我，蓝色是同一同盟，红色是两边同盟 ID 都对得上、而且不是我方。没有三角表示无主，或者还不知道是谁。未知不会画成敌军。</li>
             <li>格子中间的白点表示有部队把这里当目标。</li>
-            <li>彩色线是部队路线。实线表示看到了当前位置和下一跳；虚线表示只知道终点，中间格子没有补。颜色同样是我、友、敌，灰色是未知。</li>
+            <li>彩色线是部队路线。颜色同样是我、友、敌，灰色是未知。浅蓝色三角沿路线排开，指向进军方向。</li>
             <li>缩小后的大色块是一片区域的汇总，不是单格，这时不画单条路线。</li>
             <li>拖拽平移。鼠标滚轮按光标缩放。触控板双指滑动是平移，捏合是缩放。右下角 + 和 − 一次跳一整档。</li>
             <li>全图会打开单独的地图页：筛选项在顶部，点地块后详情从弹窗出现。</li>
@@ -2279,6 +2281,9 @@ td.num,th.num{font-family:var(--font-mono);}
             <span><i data-mark="army"></i>有部队</span>
             <span><i data-mark="path"></i>行军经过</span>
             <span><i data-mark="high"></i>7 级以上有白框</span>
+            <span><i data-mark="fort-ally"></i>我方要塞</span>
+            <span><i data-mark="fort-enemy"></i>敌方要塞</span>
+            <span><i data-mark="city"></i>城池</span>
           </div>
         </div>
       </section>
@@ -2444,8 +2449,7 @@ td.num,th.num{font-family:var(--font-mono);}
           <span><i data-side="ally"></i>友</span>
           <span><i data-side="enemy"></i>敌</span>
           <span><i data-side="unknown"></i>未知</span>
-          <span><i data-line="solid"></i>已看到下一跳</span>
-          <span><i data-line="dashed"></i>只知道终点</span>
+          <span><i data-line="solid"></i>行军路线</span>
           <span><i data-shape="arrow"></i>移动</span>
           <span><i data-shape="shield"></i>驻守 / 增援</span>
           <span><i data-shape="diamond"></i>状态过期 / 离线</span>

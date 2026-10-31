@@ -1,3 +1,5 @@
+import { MARCH_ARROW_COLOR, marchArrowTriangle, marchArrows } from "./intelligence-map.mjs";
+
 const STATE_SHAPES = Object.freeze({
   normal: "circle",
   expedition: "arrow",
@@ -341,17 +343,30 @@ function drawRoute(context, route) {
   context.strokeStyle = route.color;
   context.lineWidth = route.selected ? 3 : 1.5;
   context.globalAlpha = route.kind === "offline" ? 0.45 : 0.82;
-  if (route.kind === "incomplete") context.setLineDash([7, 5]);
-  else if (route.kind === "stale") context.setLineDash([2, 5]);
-  else if (route.kind === "offline") context.setLineDash([3, 6]);
-  else context.setLineDash([]);
-  context.beginPath();
-  context.moveTo(route.points[0].x, route.points[0].y);
-  for (const point of route.points.slice(1)) {
-    context.lineTo(point.x, point.y);
+  // 根据关系设置箭头颜色：敌方为红色箭头，我方/盟友为蓝色箭头
+  const arrowColor = route.relation === "enemy" ? "#f05267" : "#54a6ff";
+  context.fillStyle = arrowColor;
+  for (let index = 1; index < route.points.length; index += 1) {
+    const start = route.points[index - 1];
+    const end = route.points[index];
+    const arrows = marchArrows(start.x, start.y, end.x, end.y);
+    context.beginPath();
+    context.setLineDash([]);
+    context.moveTo(start.x, start.y);
+    context.lineTo(end.x, end.y);
+    context.stroke();
+    context.setLineDash([]);
+    context.globalAlpha = route.kind === "offline" ? 0.7 : 1;
+    for (const arrow of arrows) {
+      const triangle = marchArrowTriangle(arrow, 8, 6);
+      context.beginPath();
+      context.moveTo(triangle[0].x, triangle[0].y);
+      context.lineTo(triangle[1].x, triangle[1].y);
+      context.lineTo(triangle[2].x, triangle[2].y);
+      context.closePath();
+      context.fill();
+    }
   }
-  context.stroke();
-  context.setLineDash([]);
   context.restore();
 }
 

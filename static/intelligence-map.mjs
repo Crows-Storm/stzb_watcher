@@ -30,6 +30,80 @@ export function relationFor(userId, unionId, viewer) {
   return "unknown";
 }
 
+export const STRUCTURE_FILLS = Object.freeze({
+  self: "#54a6ff",
+  ally: "#54a6ff",
+  enemy: "#f05267",
+});
+
+export function structureKind(tile) {
+  const type = Number(tile?.city_type ?? tile?.cityType);
+  const name = String(tile?.name || "");
+  const param = Number(tile?.city_param ?? tile?.cityParam) || 0;
+  if (type === 1) return "main";
+  if (type === 3) return "branch";
+  if (type === 4 || type === 12) return "fortress";
+  if (type === 9 && (name === "要塞" || param === 71001)) return "fortress";
+  if (type === 8 && name && name !== "攻城营垒" && name !== "沃土") return "city";
+  if (type === 7 && Number(tile?.belong_city || tile?.belongCity) > 0) return "city-cell";
+  return "";
+}
+
+export function holdRelation(tile, viewer) {
+  const kind = structureKind(tile);
+  if (!kind) return "unknown";
+  const allianceOnly = kind === "city";
+  const user = allianceOnly ? 0 : (Number(tile?.user_id ?? tile?.userId) || 0);
+  const union = allianceOnly
+    ? (Number(tile?.union_id ?? tile?.unionId) || 0)
+    : (Number(tile?.ownerUnionId ?? tile?.union_id ?? tile?.unionId) || 0);
+  const selfUser = Number(viewer?.userId) || 0;
+  const selfUnion = Number(viewer?.unionId) || 0;
+  if (!user && !union) return "unowned";
+  if (selfUser && user && user === selfUser) return "self";
+  if (selfUnion && union && union === selfUnion) return "ally";
+  if (allianceOnly && selfUnion && union && union !== selfUnion) return "enemy";
+  if (
+    user
+    && selfUser
+    && user !== selfUser
+    && selfUnion
+    && union
+    && union !== selfUnion
+  ) {
+    return "enemy";
+  }
+  return "unknown";
+}
+
+export function ownershipFill(relation) {
+  return STRUCTURE_FILLS[relation] || "";
+}
+
+export function cityFrames(tiles) {
+  const list = tiles || [];
+  const frames = [];
+  for (const tile of list) {
+    if (structureKind(tile) !== "city") continue;
+    const wid = Number(tile.wid);
+    const cells = list.filter((item) => (
+      Number(item.wid) === wid || Number(item.belong_city || item.belongCity) === wid
+    ));
+    const rows = cells.map((item) => Number(item.row));
+    const cols = cells.map((item) => Number(item.col));
+    frames.push({
+      wid,
+      name: String(tile.name || ""),
+      rowUp: Math.min(...rows),
+      rowDown: Math.max(...rows),
+      colLeft: Math.min(...cols),
+      colRight: Math.max(...cols),
+      cells: cells.length,
+    });
+  }
+  return frames;
+}
+
 export function wheelAction(input = {}) {
   const deltaMode = Number(input.deltaMode) || 0;
   const deltaX = Number(input.deltaX) || 0;
@@ -181,6 +255,41 @@ export function gridFrame(width, height, rows, cols) {
   };
 }
 
+export const MARCH_ARROW_COLOR = "#9ad7ff";
+
+export function marchArrows(x0, y0, x1, y1) {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const length = Math.hypot(dx, dy);
+  if (length < 8) return [];
+  const angle = Math.atan2(dy, dx);
+  const ux = dx / length;
+  const uy = dy / length;
+  const spacing = 10;
+  const arrows = [];
+  for (let distance = spacing; distance < length - 3; distance += spacing) {
+    arrows.push({
+      x: x0 + ux * distance,
+      y: y0 + uy * distance,
+      angle,
+    });
+  }
+  return arrows;
+}
+
+export function marchArrowTriangle(arrow, length = 8, width = 6) {
+  const cos = Math.cos(arrow.angle);
+  const sin = Math.sin(arrow.angle);
+  const tip = length * 0.62;
+  const tail = length * 0.38;
+  const half = width / 2;
+  return [
+    { x: arrow.x + cos * tip, y: arrow.y + sin * tip },
+    { x: arrow.x - cos * tail - sin * half, y: arrow.y - sin * tail + cos * half },
+    { x: arrow.x - cos * tail + sin * half, y: arrow.y - sin * tail - cos * half },
+  ];
+}
+
 export function clipSegment(x0, y0, x1, y1, rect) {
   const left = rect.x;
   const right = rect.x + rect.width;
@@ -252,7 +361,12 @@ export function drawIntelligenceMap(canvas, tiles, options = {}) {
       const tile = tileMap.get(wid) || { wid, row, col, landLevel: 0, freshness: "unknown", relation: "unknown" };
       const x = originX + (col - bounds.colLeft) * size;
       const y = originY + (row - bounds.rowUp) * size;
-      drawPlan(context, tileDrawPlan(tile, size, options.layers || {}), tile, x, y, size);
+      const kind = structureKind(tile);
+      if (kind) {
+        drawStructureCell(context, tile, options.viewer, x, y, size);
+      } else {
+        drawPlan(context, tileDrawPlan(tile, size, options.layers || {}), tile, x, y, size);
+      }
       hitAreas.push({ wid, x, y, size });
     }
   }
@@ -277,7 +391,110 @@ export function drawIntelligenceMap(canvas, tiles, options = {}) {
   context.strokeStyle = "#6f93b4";
   context.strokeRect(originX + 0.5, originY + 0.5, Math.max(0, frame.width - 1), Math.max(0, frame.height - 1));
   context.restore();
+  if (size >= 7) {
+    drawStructureIcons(context, tiles, bounds, frame);
+  }
   return { bounds, size, originX, originY, frame, hitAreas };
+}
+
+function drawStructureCell(context, tile, viewer, x, y, size) {
+  const fill = ownershipFill(holdRelation(tile, viewer));
+  context.fillStyle = fill || "#10192e";
+  context.fillRect(x + 1, y + 1, Math.max(1, size - 2), Math.max(1, size - 2));
+  if (tile.selected) {
+    context.strokeStyle = "#fff";
+    context.lineWidth = 2;
+    context.strokeRect(x + 1, y + 1, size - 2, size - 2);
+    context.lineWidth = 1;
+  }
+}
+
+function drawStructureIcons(context, tiles, bounds, frame) {
+  context.save();
+  context.beginPath();
+  context.rect(frame.originX, frame.originY, frame.width, frame.height);
+  context.clip();
+  context.strokeStyle = "#f6f1e4";
+  context.fillStyle = "#f6f1e4";
+  context.lineJoin = "round";
+  context.lineCap = "round";
+  const covered = new Set();
+  for (const city of cityFrames(tiles)) {
+    covered.add(city.wid);
+    const x = frame.originX + (city.colLeft - bounds.colLeft) * frame.size;
+    const y = frame.originY + (city.rowUp - bounds.rowUp) * frame.size;
+    const w = (city.colRight - city.colLeft + 1) * frame.size;
+    const h = (city.rowDown - city.rowUp + 1) * frame.size;
+    drawCityGlyph(context, x, y, w, h, city.name);
+  }
+  for (const tile of tiles) {
+    const kind = structureKind(tile);
+    if (!kind || kind === "city" || kind === "city-cell" || covered.has(Number(tile.wid))) continue;
+    const x = frame.originX + (Number(tile.col) - bounds.colLeft) * frame.size;
+    const y = frame.originY + (Number(tile.row) - bounds.rowUp) * frame.size;
+    drawMarkGlyph(context, kind, x, y, frame.size, frame.size);
+  }
+  context.restore();
+}
+
+const FORTRESS_GLYPH = [
+  ["M", 12, 56], ["L", 12, 14], ["L", 22, 14], ["L", 22, 28], ["L", 27, 28], ["L", 27, 14],
+  ["L", 37, 14], ["L", 37, 28], ["L", 42, 28], ["L", 42, 14], ["L", 52, 14], ["L", 52, 56], ["Z"],
+  ["M", 28, 56], ["L", 28, 46], ["Q", 32, 39, 36, 46], ["L", 36, 56], ["Z"],
+];
+
+const BRANCH_GLYPH = [
+  ["M", 16, 56], ["L", 16, 40], ["L", 10, 40], ["L", 10, 32], ["L", 16, 32], ["L", 16, 26],
+  ["L", 32, 12], ["L", 48, 26], ["L", 48, 32], ["L", 54, 32], ["L", 54, 40], ["L", 48, 40],
+  ["L", 48, 56], ["Z"],
+  ["M", 28, 56], ["L", 28, 46], ["L", 36, 46], ["L", 36, 56], ["Z"],
+];
+
+const MAIN_GLYPH = [
+  ["M", 6, 56], ["L", 6, 16], ["L", 16, 16], ["L", 16, 30], ["L", 22, 30], ["L", 32, 8],
+  ["L", 42, 30], ["L", 48, 30], ["L", 48, 16], ["L", 58, 16], ["L", 58, 56], ["Z"],
+  ["M", 26, 56], ["L", 26, 44], ["Q", 32, 34, 38, 44], ["L", 38, 56], ["Z"],
+];
+
+const CITY_GLYPH = [
+  ["M", 4, 56], ["L", 4, 36], ["L", 8, 36], ["L", 8, 18], ["L", 18, 18], ["L", 18, 36],
+  ["L", 22, 36], ["L", 22, 8], ["L", 42, 8], ["L", 42, 36], ["L", 46, 36], ["L", 46, 18],
+  ["L", 56, 18], ["L", 56, 36], ["L", 60, 36], ["L", 60, 56], ["Z"],
+  ["M", 27, 56], ["L", 27, 40], ["Q", 32, 28, 37, 40], ["L", 37, 56], ["Z"],
+];
+
+function fillGlyph(context, x, y, w, h, commands) {
+  const px = (unit) => x + (unit / 64) * w;
+  const py = (unit) => y + (unit / 64) * h;
+  context.beginPath();
+  for (const cmd of commands) {
+    if (cmd[0] === "M") context.moveTo(px(cmd[1]), py(cmd[2]));
+    else if (cmd[0] === "L") context.lineTo(px(cmd[1]), py(cmd[2]));
+    else if (cmd[0] === "Q") context.quadraticCurveTo(px(cmd[1]), py(cmd[2]), px(cmd[3]), py(cmd[4]));
+    else context.closePath();
+  }
+  context.fillStyle = "#f6f1e4";
+  context.fill("evenodd");
+}
+
+function drawMarkGlyph(context, kind, x, y, w, h) {
+  const pad = Math.max(1.5, Math.min(w, h) * 0.12);
+  const box = [x + pad, y + pad, w - pad * 2, h - pad * 2];
+  const glyph = { fortress: FORTRESS_GLYPH, branch: BRANCH_GLYPH, main: MAIN_GLYPH }[kind];
+  if (glyph) fillGlyph(context, box[0], box[1], box[2], box[3], glyph);
+}
+
+function drawCityGlyph(context, x, y, w, h, name) {
+  const showName = Boolean(name) && w >= 72;
+  const label = showName ? Math.min(20, h * 0.12) : 0;
+  const pad = Math.min(w, h) * 0.05;
+  fillGlyph(context, x + pad, y + label, w - pad * 2, h - label - pad, CITY_GLYPH);
+  if (!showName) return;
+  context.fillStyle = "#f6f1e4";
+  context.font = `600 ${Math.max(12, Math.min(18, w * 0.11))}px sans-serif`;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(name, x + w / 2, y + label * 0.5);
 }
 
 function drawRoutes(context, routes, bounds, frame) {
@@ -301,7 +518,7 @@ function drawRoutes(context, routes, bounds, frame) {
     if (points.length < 2) continue;
     context.beginPath();
     context.strokeStyle = route.color || RELATION_COLORS.unknown;
-    context.setLineDash(route.dashed ? [5, 4] : []);
+    context.setLineDash([]);
     let drawing = false;
     for (let index = 1; index < points.length; index += 1) {
       const clipped = clipSegment(
@@ -320,6 +537,30 @@ function drawRoutes(context, routes, bounds, frame) {
       drawing = true;
     }
     context.stroke();
+    context.setLineDash([]);
+    const arrowLength = Math.max(6, Math.min(9, frame.size * 0.28));
+    // 根据关系设置箭头颜色：敌方为红色箭头，我方/盟友为蓝色箭头
+    const arrowColor = route.relation === "enemy" ? "#f05267" : "#54a6ff";
+    context.fillStyle = arrowColor;
+    for (let index = 1; index < points.length; index += 1) {
+      const clipped = clipSegment(
+        points[index - 1].x,
+        points[index - 1].y,
+        points[index].x,
+        points[index].y,
+        rect,
+      );
+      if (!clipped) continue;
+      for (const arrow of marchArrows(clipped.x0, clipped.y0, clipped.x1, clipped.y1)) {
+        const triangle = marchArrowTriangle(arrow, arrowLength, arrowLength * 0.72);
+        context.beginPath();
+        context.moveTo(triangle[0].x, triangle[0].y);
+        context.lineTo(triangle[1].x, triangle[1].y);
+        context.lineTo(triangle[2].x, triangle[2].y);
+        context.closePath();
+        context.fill();
+      }
+    }
   }
   context.restore();
 }
@@ -390,6 +631,10 @@ if (typeof window !== "undefined") {
     RELATION_COLORS,
     levelColor,
     relationFor,
+    structureKind,
+    holdRelation,
+    ownershipFill,
+    cityFrames,
     routesFromArmies,
     wheelAction,
     wheelZoomFactor,
@@ -397,6 +642,9 @@ if (typeof window !== "undefined") {
     zoomBounds,
     tileDrawPlan,
     gridFrame,
+    MARCH_ARROW_COLOR,
+    marchArrows,
+    marchArrowTriangle,
     clipSegment,
     drawIntelligenceMap,
     hitTestMap,

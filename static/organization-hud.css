@@ -39,6 +39,43 @@
   background: var(--surface-panel);
 }
 
+.organization-table-panel > .hud-panel-head h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font: 600 15px/22px var(--font-sans);
+  letter-spacing: 0;
+}
+
+.organization-table-panel .tbl-controls {
+  margin-left: auto;
+}
+
+.organization-table-panel .organization-export {
+  min-height: 32px;
+  padding: 4px 12px;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  background: transparent;
+  box-shadow: none;
+  font: 600 12px/18px var(--font-sans);
+}
+
+.organization-table-panel .organization-export:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--domain-accent) 48%, var(--border-subtle));
+  background: color-mix(in srgb, var(--domain-accent) 12%, var(--surface-2));
+  box-shadow: none;
+}
+
+.organization-table-panel .organization-export:disabled {
+  color: var(--text-tertiary);
+  border-color: var(--border-subtle);
+  background: transparent;
+  box-shadow: none;
+  cursor: wait;
+}
+
 .organization-status-host {
   margin: 10px 12px 0;
   border: 1px solid var(--border-subtle);

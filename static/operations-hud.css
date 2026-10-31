@@ -5,44 +5,96 @@
 
 .operations-task-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.9fr);
-  grid-template-areas:
-    "tasks detail"
-    "battles detail";
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
 
-.operation-task-list { grid-area: tasks; }
+.operation-task-list,
+.operation-detail,
+.operation-battle-feed { min-width: 0; }
+
+.operations-task-grid:has(.operation-detail:not(.is-hidden)) {
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  grid-template-areas:
+    "tasks detail"
+    "battles detail";
+}
+
+.operations-task-grid:has(.operation-detail:not(.is-hidden)) .operation-task-list { grid-area: tasks; }
 .operation-detail {
   grid-area: detail;
   position: sticky;
   top: calc(var(--header-height) + 14px);
 }
-.operation-battle-feed { grid-area: battles; }
+.operations-task-grid:has(.operation-detail:not(.is-hidden)) .operation-battle-feed { grid-area: battles; }
 .operation-detail.is-hidden,
 .operation-battle-feed.is-hidden { display: none; }
 
+.operation-task-list > .hud-panel-head {
+  flex-wrap: wrap;
+}
+.operation-task-list > .hud-panel-head h3 {
+  margin: 0;
+  white-space: nowrap;
+}
+.operation-task-list .tbl-controls {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.operation-task-list .hud-table-scroll { overflow: auto; }
+.operation-task-list table {
+  min-width: 880px;
+  table-layout: fixed;
+}
+.operation-task-list th {
+  white-space: nowrap;
+}
+.operation-task-list th:nth-child(1) { width: 28%; }
+.operation-task-list th:nth-child(2) { width: 15%; }
+.operation-task-list th:nth-child(3) { width: 15%; }
+.operation-task-list th:nth-child(4) { width: 10%; }
+.operation-task-list th:nth-child(5),
+.operation-task-list th:nth-child(6) { width: 8%; }
+.operation-task-list th:nth-child(7) { width: 16%; }
+.operation-task-list td {
+  overflow: visible;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.operation-task-name {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  container-type: inline-size;
+}
+.operation-task-name b { color: var(--text-primary); }
+
 .operation-stage-strip {
   display: grid;
-  margin: 0 0 8px;
-  padding: 5px;
-  grid-template-columns: repeat(4, minmax(78px, 1fr));
+  margin: 0;
+  padding: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
   background: var(--surface-elevated);
 }
+@container (min-width: 300px) {
+  .operation-stage-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
 .operation-stage {
   position: relative;
-  min-height: 28px;
-  padding: 6px 8px 6px 20px;
+  min-height: 26px;
+  padding: 4px 4px 4px 14px;
   overflow: hidden;
   color: var(--text-tertiary);
   border: 1px solid transparent;
   border-radius: 5px;
-  font: 9px/14px var(--font-mono);
+  font: 11px/16px var(--font-sans);
   text-align: center;
   white-space: nowrap;
 }
@@ -50,7 +102,7 @@
 .operation-stage::before {
   position: absolute;
   top: 50%;
-  left: 8px;
+  left: 5px;
   width: 6px;
   height: 6px;
   content: "";
@@ -75,7 +127,7 @@
 
 .operation-progress {
   display: grid;
-  min-width: 112px;
+  min-width: 0;
   gap: 4px;
 }
 
@@ -125,17 +177,27 @@
   font: 10px var(--font-mono);
 }
 
-#tab16 td:last-child { min-width: 202px; }
-#tab16 td:last-child .btn {
+.operation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.operation-actions .btn {
   min-height: 28px;
-  padding: 3px 7px;
-  font-size: 10px;
+  padding: 3px 8px;
+  font-size: 12px;
 }
 
 @media (max-width: 1180px) {
-  .operations-task-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas: "tasks" "detail" "battles";
+  .operations-task-grid,
+  .operations-task-grid:has(.operation-detail:not(.is-hidden)) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+  }
+  .operation-task-list,
+  .operation-detail,
+  .operation-battle-feed {
+    grid-area: auto;
   }
   .operation-detail { position: static; }
 }

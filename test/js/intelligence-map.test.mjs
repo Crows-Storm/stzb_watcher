@@ -4,11 +4,17 @@ import test from "node:test";
 import {
   LEVEL_COLORS,
   clipSegment,
+  marchArrowTriangle,
+  marchArrows,
   gridFrame,
   levelColor,
   panBounds,
   tileDrawPlan,
   relationFor,
+  cityFrames,
+  holdRelation,
+  ownershipFill,
+  structureKind,
   routesFromArmies,
   wheelAction,
   wheelZoomFactor,
@@ -131,6 +137,21 @@ test("army routes use id comparison and do not invent enemies", () => {
   assert.equal(routes.find((route) => route.relation === "self").dashed, false);
 });
 
+test("march arrows point from the current tile toward the next hop", () => {
+  assert.deepEqual(marchArrows(0, 0, 7, 0), []);
+  const forward = marchArrows(0, 0, 120, 0);
+  assert.ok(forward.length >= 10);
+  assert.ok(forward.every((arrow) => arrow.angle === 0 && arrow.x > 0 && arrow.x < 120));
+  const backward = marchArrows(120, 40, 0, 40);
+  assert.ok(backward.every((arrow) => arrow.angle === Math.PI || arrow.angle === -Math.PI));
+  const triangle = marchArrowTriangle(forward[0], 8, 6);
+  const baseX = (triangle[1].x + triangle[2].x) / 2;
+  assert.ok(triangle[0].x > baseX);
+  const down = marchArrowTriangle(marchArrows(10, 0, 10, 90)[0], 8, 6);
+  const baseY = (down[1].y + down[2].y) / 2;
+  assert.ok(down[0].y > baseY);
+});
+
 test("near map grid is centered in a wide canvas", () => {
   const frame = gridFrame(900, 400, 20, 20);
   assert.equal(frame.size, 20);
@@ -150,4 +171,39 @@ test("route segments stop at the grid edge", () => {
   assert.equal(clipped.x1, 300);
   assert.equal(clipped.y0, 120);
   assert.equal(clipped.y1, 120);
+});
+
+test("a city footprint collapses to one icon frame", () => {
+  const center = { wid: 7460979, row: 746, col: 979, city_type: 8, name: "濮阳", union_id: 1016 };
+  const cells = [];
+  for (let row = 744; row <= 748; row += 1) {
+    for (let col = 977; col <= 981; col += 1) {
+      const wid = row * 10000 + col;
+      cells.push(wid === center.wid ? center : {
+        wid, row, col, city_type: 7, belong_city: center.wid, user_id: 10,
+      });
+    }
+  }
+  const frames = cityFrames(cells);
+  assert.equal(frames.length, 1);
+  assert.equal(frames[0].cells, 25);
+  assert.deepEqual(
+    [frames[0].rowUp, frames[0].rowDown, frames[0].colLeft, frames[0].colRight],
+    [744, 748, 977, 981],
+  );
+  assert.equal(structureKind({ city_type: 9, name: "要塞" }), "fortress");
+  assert.equal(structureKind({ city_type: 8, name: "攻城营垒" }), "");
+  assert.equal(structureKind({ city_type: 3, name: "昌国分城" }), "branch");
+});
+
+test("structure squares use side color and leave an empty fortress uncolored", () => {
+  const viewer = { userId: 7, unionId: 1006 };
+  const enemyFort = { city_type: 4, user_id: 9, ownerUnionId: 2000 };
+  const allyFort = { city_type: 4, user_id: 8, ownerUnionId: 1006 };
+  const bareFort = { city_type: 9, name: "要塞", user_id: 0, union_id: 0 };
+  const city = { city_type: 8, name: "濮阳", user_id: 99, union_id: 1016 };
+  assert.equal(ownershipFill(holdRelation(enemyFort, viewer)), "#f05267");
+  assert.equal(ownershipFill(holdRelation(allyFort, viewer)), "#54a6ff");
+  assert.equal(ownershipFill(holdRelation(bareFort, viewer)), "");
+  assert.equal(holdRelation(city, viewer), "enemy");
 });

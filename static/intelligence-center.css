@@ -36,6 +36,9 @@
 .intel-legend i[data-mark="army"]{background:radial-gradient(circle,#f4f7ff 42%,transparent 46%)}
 .intel-legend i[data-mark="path"]{background:transparent;box-shadow:inset 0 0 0 2px #8cecff}
 .intel-legend i[data-mark="high"]{background:#e87e25;box-shadow:inset 0 0 0 2px #ffffff88}
+.intel-legend i[data-mark="fort-ally"]{background:#54a6ff}
+.intel-legend i[data-mark="fort-enemy"]{background:#f05267}
+.intel-legend i[data-mark="city"]{background:transparent;box-shadow:inset 0 0 0 2px #f6f1e4}
 .intel-error{color:var(--danger)}
 
 .intel-map-shell,
